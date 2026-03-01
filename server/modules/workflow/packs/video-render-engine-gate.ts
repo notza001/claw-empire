@@ -15,19 +15,27 @@ const REMOTION_PATTERNS: SignalPattern[] = [
 
 const FORBIDDEN_USAGE_PATTERNS: SignalPattern[] = [
   { key: "moviepy_import", regex: /\b(?:from|import)\s+moviepy\b/i },
-  { key: "moviepy_usage", regex: /\bmoviepy\b.{0,48}\b(using|use|render|build|create|available|installed|version)\b/i },
-  { key: "moviepy_usage_rev", regex: /\b(using|use|render|build|create)\b.{0,48}\bmoviepy\b/i },
+  { key: "moviepy_usage", regex: /\bmoviepy\b.{0,64}\b(using|use|render|build|create|generate|generated)\b/i },
+  { key: "moviepy_usage_rev", regex: /\b(using|use|render|build|create|generate)\b.{0,64}\bmoviepy\b/i },
   { key: "python_moviepy", regex: /\bpython\b.{0,64}\bmoviepy\b/i },
   { key: "pillow_import", regex: /\b(?:from|import)\s+PIL\b/i },
-  { key: "pillow_usage", regex: /\bpillow\b.{0,48}\b(using|use|render|build|create|available|installed|version)\b/i },
-  { key: "pillow_usage_rev", regex: /\b(using|use|render|build|create)\b.{0,48}\bpillow\b/i },
+  { key: "pillow_usage", regex: /\bpillow\b.{0,64}\b(using|use|render|build|create|generate|generated)\b/i },
+  { key: "pillow_usage_rev", regex: /\b(using|use|render|build|create|generate)\b.{0,64}\bpillow\b/i },
   { key: "python_pillow", regex: /\bpython\b.{0,64}\bpillow\b/i },
+  { key: "pip_moviepy", regex: /\bpip(?:3)?\s+install\b.{0,64}\bmoviepy\b/i },
+  { key: "pip_pillow", regex: /\bpip(?:3)?\s+install\b.{0,64}\bpillow\b/i },
 ];
 
-const NEGATION_HINT = /(do not|don't|never|not\s+use|forbidden|prohibit|prohibited|not\s+allowed|금지|쓰지\s*마|사용\s*금지|禁止|不要|禁用|不可使用)/i;
+const NEGATION_HINT =
+  /(do not|don't|never|not\s+use|forbidden|prohibit|prohibited|not\s+allowed|without|remotion\s+only|no\s+(?:python|moviepy|pillow|ffmpeg)|금지|쓰지\s*마|사용\s*금지|사용하지\s*마|미사용|禁止|不要|禁用|不可使用)/i;
+const THINKING_STREAM_HINT = /"type":"thinking(?:_delta)?"|"thinking":/i;
 
 function hasNegationHint(line: string): boolean {
   return NEGATION_HINT.test(line);
+}
+
+function isReasoningStreamLine(line: string): boolean {
+  return THINKING_STREAM_HINT.test(line);
 }
 
 function detectSignals(text: string): { remotionSignals: string[]; forbiddenSignals: string[] } {
@@ -41,6 +49,9 @@ function detectSignals(text: string): { remotionSignals: string[]; forbiddenSign
   for (const rawLine of lines) {
     const line = String(rawLine ?? "");
     if (!line) continue;
+    // Claude/Codex reasoning stream can mention banned engines in policy context.
+    // Treat only execution/report content as policy evidence.
+    if (isReasoningStreamLine(line)) continue;
     if (hasNegationHint(line)) continue;
     for (const pattern of FORBIDDEN_USAGE_PATTERNS) {
       if (pattern.regex.test(line)) {

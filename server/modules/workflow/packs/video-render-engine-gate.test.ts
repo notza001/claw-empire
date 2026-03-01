@@ -80,4 +80,22 @@ describe("evaluateRemotionOnlyGateFromLogFiles", () => {
     expect(result.forbiddenEngineTaskIds).toEqual([]);
     expect(result.remotionEvidenceTaskIds).toEqual(["task-d"]);
   });
+
+  it("ignores thinking-stream policy lines and passes when remotion render evidence exists", () => {
+    const logsDir = makeLogsDir();
+    fs.writeFileSync(
+      path.join(logsDir, "task-e.log"),
+      [
+        '{"type":"stream_event","event":{"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"Use Remotion only (no Python/moviepy/Pillow, no ffmpeg standalone)"}}}',
+        "pnpm exec remotion render src/index.tsx Intro video_output/final.mp4 --log=verbose",
+      ].join("\n"),
+      "utf8",
+    );
+
+    const result = evaluateRemotionOnlyGateFromLogFiles({ logsDir, taskIds: ["task-e"] });
+
+    expect(result.passed).toBe(true);
+    expect(result.forbiddenEngineTaskIds).toEqual([]);
+    expect(result.remotionEvidenceTaskIds).toEqual(["task-e"]);
+  });
 });
