@@ -223,7 +223,11 @@ function loadOpenApiFile() {
 
 async function serializeDoc(doc) {
   const json = JSON.stringify(doc, null, 2);
-  return prettier.format(json, { parser: "json" });
+  const prettierConfig = (await prettier.resolveConfig(OPENAPI_PATH)) ?? {};
+  return prettier.format(json, {
+    ...prettierConfig,
+    filepath: OPENAPI_PATH,
+  });
 }
 
 function inferStringExample(name = "") {
