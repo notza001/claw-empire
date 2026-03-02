@@ -473,7 +473,11 @@ function pickText(locale: UiLanguageLike, text: Localized): string {
   }
 }
 
-function localizedNumberedName(locale: UiLanguageLike, prefix: Localized, order: number): { name: string; name_ko: string; name_ja: string; name_zh: string } {
+function localizedNumberedName(
+  locale: UiLanguageLike,
+  prefix: Localized,
+  order: number,
+): { name: string; name_ko: string; name_ja: string; name_zh: string } {
   return {
     name: `${prefix.en} ${order}`,
     name_ko: `${prefix.ko} ${order}`,
@@ -505,12 +509,15 @@ function localizedStaffDisplayName(params: {
   };
 }
 
-function resolveSeedSpriteNumber(params: {
-  packKey: WorkflowPackKey;
-  deptId: string;
-  role: AgentRole;
-  order: number;
-}, usedSpriteNumbers: Set<number>): number {
+function resolveSeedSpriteNumber(
+  params: {
+    packKey: WorkflowPackKey;
+    deptId: string;
+    role: AgentRole;
+    order: number;
+  },
+  usedSpriteNumbers: Set<number>,
+): number {
   const seed = `${params.packKey}:${params.deptId}:${params.role}:${params.order}`;
   let hash = 0;
   for (let i = 0; i < seed.length; i += 1) {
@@ -704,7 +711,9 @@ export function resolveOfficePackSeedProvider(params: {
   seedOrderInDepartment?: number;
 }): OfficePackSeedProvider {
   if (params.packKey === "development") return "claude";
-  const dept = String(params.departmentId ?? "").trim().toLowerCase();
+  const dept = String(params.departmentId ?? "")
+    .trim()
+    .toLowerCase();
   if (dept === "planning") {
     const order = params.seedOrderInDepartment ?? params.seedIndex;
     return order % 2 === 0 ? "codex" : "claude";
@@ -730,8 +739,7 @@ export function buildOfficePackStarterAgents(params: {
   );
   if (baseDeptOrder.length === 0) return [];
 
-  const nonLeaderCycle =
-    (preset.staff?.nonLeaderDeptCycle ?? []).filter((deptId) => departmentById.has(deptId)) || [];
+  const nonLeaderCycle = (preset.staff?.nonLeaderDeptCycle ?? []).filter((deptId) => departmentById.has(deptId)) || [];
   const planningLeadDeptIds =
     (preset.staff?.planningLeadDeptIds ?? ["planning"]).filter((deptId) => departmentById.has(deptId)) || [];
   const workerCycle = nonLeaderCycle.length > 0 ? nonLeaderCycle : baseDeptOrder;

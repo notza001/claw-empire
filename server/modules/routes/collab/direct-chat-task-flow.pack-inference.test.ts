@@ -105,9 +105,9 @@ describe("direct-chat task flow pack inference", () => {
         { projectId: "project-1" },
       );
 
-      const row = db
-        .prepare("SELECT workflow_pack_key FROM tasks ORDER BY created_at DESC LIMIT 1")
-        .get() as { workflow_pack_key: string };
+      const row = db.prepare("SELECT workflow_pack_key FROM tasks ORDER BY created_at DESC LIMIT 1").get() as {
+        workflow_pack_key: string;
+      };
       expect(row.workflow_pack_key).toBe("video_preprod");
     } finally {
       db.close();

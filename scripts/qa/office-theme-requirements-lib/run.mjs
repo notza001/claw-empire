@@ -33,8 +33,7 @@ import { collectScopedContrastFromRoot, collectThemeContrastAcrossViews } from "
 export async function runOfficeThemeRequirements() {
   const baseUrl = process.env.QA_BASE_URL ?? "http://127.0.0.1:8810";
   const runLabel = new Date().toISOString().replace(/[:.]/g, "-");
-  const outDir =
-    process.env.QA_OUT_DIR ?? path.join("docs", "reports", "qa", "office-theme-requirements", runLabel);
+  const outDir = process.env.QA_OUT_DIR ?? path.join("docs", "reports", "qa", "office-theme-requirements", runLabel);
 
   await mkdir(outDir, { recursive: true });
   const traceLogPath = path.join(outDir, "trace.log");
@@ -137,7 +136,9 @@ export async function runOfficeThemeRequirements() {
   const canvasLocator = page.locator("canvas").first();
   const canvasVisible = await canvasLocator.isVisible().catch(() => false);
   const beforeCanvasBox = canvasVisible ? await canvasLocator.boundingBox() : null;
-  const beforeCanvasTone = beforeCanvasBox ? await analyzeRegionTone(artifacts.pre_toggle_screenshot, beforeCanvasBox) : null;
+  const beforeCanvasTone = beforeCanvasBox
+    ? await analyzeRegionTone(artifacts.pre_toggle_screenshot, beforeCanvasBox)
+    : null;
 
   let toggleClicked = false;
   if (rightButtonLocator) {
@@ -201,7 +202,8 @@ export async function runOfficeThemeRequirements() {
 
   const officeButtonBackgroundDelta =
     styleDeltaSignals.find((signal) => signal.target === "office_button.background")?.delta ?? 0;
-  const officeButtonColorDelta = styleDeltaSignals.find((signal) => signal.target === "office_button.color")?.delta ?? 0;
+  const officeButtonColorDelta =
+    styleDeltaSignals.find((signal) => signal.target === "office_button.color")?.delta ?? 0;
   const officeButtonReactive =
     toggleClicked &&
     (officeButtonBackgroundDelta >= UI_REACTION_DELTA_MIN || officeButtonColorDelta >= UI_REACTION_DELTA_MIN);
@@ -239,8 +241,8 @@ export async function runOfficeThemeRequirements() {
   const reloadedStoredTheme = resolveStoredTheme(reloadedThemeStorage);
   const hardRefreshPass = Boolean(
     expectedPersistedTheme &&
-      reloadedAttrTheme === expectedPersistedTheme &&
-      reloadedStoredTheme === expectedPersistedTheme,
+    reloadedAttrTheme === expectedPersistedTheme &&
+    reloadedStoredTheme === expectedPersistedTheme,
   );
 
   checks.push(
@@ -285,10 +287,10 @@ export async function runOfficeThemeRequirements() {
   const dashboardLightView = lightContrastAudit.per_view.find((view) => dashboardViewLabelRe.test(view.view_label));
   const dashboardFocusPass = Boolean(
     dashboardLightView &&
-      !dashboardLightView.truncated &&
-      dashboardLightView.sampled_text_nodes > 0 &&
-      dashboardLightView.failing_text_nodes === 0 &&
-      (dashboardLightView.min_contrast_ratio ?? 0) >= WCAG_AA_MIN_CONTRAST,
+    !dashboardLightView.truncated &&
+    dashboardLightView.sampled_text_nodes > 0 &&
+    dashboardLightView.failing_text_nodes === 0 &&
+    (dashboardLightView.min_contrast_ratio ?? 0) >= WCAG_AA_MIN_CONTRAST,
   );
   checks.push(
     buildCheck("dashboard_light_mode_contrast_focus", dashboardFocusPass, {
@@ -318,7 +320,11 @@ export async function runOfficeThemeRequirements() {
     ? await collectTerminalPanelStyles(lightTerminalOpen.panel_handle)
     : null;
   const terminalLightContrastAudit = lightTerminalOpen.panel_visible
-    ? await collectScopedContrastFromRoot(lightTerminalOpen.panel_handle, WCAG_AA_MIN_CONTRAST, MAX_TEXT_ELEMENTS_PER_VIEW)
+    ? await collectScopedContrastFromRoot(
+        lightTerminalOpen.panel_handle,
+        WCAG_AA_MIN_CONTRAST,
+        MAX_TEXT_ELEMENTS_PER_VIEW,
+      )
     : {
         root_found: false,
         sampled_text_nodes: 0,
@@ -334,10 +340,10 @@ export async function runOfficeThemeRequirements() {
   const terminalPanelTextDelta = colorDistance(darkTerminalStyles?.color, lightTerminalStyles?.color);
   const terminalPanelReactive = Boolean(
     darkThemeReadyForTerminal.matched &&
-      lightThemeReadyForTerminal.matched &&
-      darkTerminalOpen.panel_visible &&
-      lightTerminalOpen.panel_visible &&
-      (terminalPanelBackgroundDelta >= UI_REACTION_DELTA_MIN || terminalPanelTextDelta >= UI_REACTION_DELTA_MIN),
+    lightThemeReadyForTerminal.matched &&
+    darkTerminalOpen.panel_visible &&
+    lightTerminalOpen.panel_visible &&
+    (terminalPanelBackgroundDelta >= UI_REACTION_DELTA_MIN || terminalPanelTextDelta >= UI_REACTION_DELTA_MIN),
   );
   checks.push(
     buildCheck("terminal_panel_reacts_to_dark_light", terminalPanelReactive, {
@@ -370,12 +376,12 @@ export async function runOfficeThemeRequirements() {
 
   const terminalLightContrastPass = Boolean(
     lightThemeReadyForTerminal.matched &&
-      lightTerminalOpen.panel_visible &&
-      terminalLightContrastAudit.root_found &&
-      !terminalLightContrastAudit.truncated &&
-      terminalLightContrastAudit.sampled_text_nodes > 0 &&
-      terminalLightContrastAudit.failing_text_nodes === 0 &&
-      (terminalLightContrastAudit.min_contrast_ratio ?? 0) >= WCAG_AA_MIN_CONTRAST,
+    lightTerminalOpen.panel_visible &&
+    terminalLightContrastAudit.root_found &&
+    !terminalLightContrastAudit.truncated &&
+    terminalLightContrastAudit.sampled_text_nodes > 0 &&
+    terminalLightContrastAudit.failing_text_nodes === 0 &&
+    (terminalLightContrastAudit.min_contrast_ratio ?? 0) >= WCAG_AA_MIN_CONTRAST,
   );
   checks.push(
     buildCheck("terminal_panel_light_mode_contrast", terminalLightContrastPass, {

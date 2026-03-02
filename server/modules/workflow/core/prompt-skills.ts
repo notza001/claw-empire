@@ -52,8 +52,12 @@ function dedupePromptSkills(rows: PromptSkillRow[]): PromptSkillRow[] {
   const out: PromptSkillRow[] = [];
   const seen = new Set<string>();
   for (const row of rows) {
-    const repo = String(row.repo || "").trim().toLowerCase();
-    const skillId = String(row.skill_id || "").trim().toLowerCase();
+    const repo = String(row.repo || "")
+      .trim()
+      .toLowerCase();
+    const skillId = String(row.skill_id || "")
+      .trim()
+      .toLowerCase();
     if (!repo) continue;
     const key = `${repo}::${skillId}`;
     if (seen.has(key)) continue;

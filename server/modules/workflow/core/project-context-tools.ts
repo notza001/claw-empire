@@ -424,7 +424,9 @@ export function createProjectContextTools(deps: CreateProjectContextToolsDeps) {
         if (!existing.includes(AUTO_GEN_MARKER)) return false;
         const hasProjectPath = /\*\*Project path:\*\*/.test(existing);
         const hasContextSection =
-          /\*\*Stack:\*\*/.test(existing) || /\*\*Key files:\*\*/.test(existing) || /## Project Context Snapshot/.test(existing);
+          /\*\*Stack:\*\*/.test(existing) ||
+          /\*\*Key files:\*\*/.test(existing) ||
+          /## Project Context Snapshot/.test(existing);
         return !(hasProjectPath && hasContextSection);
       } catch {
         return true;

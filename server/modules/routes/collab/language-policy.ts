@@ -479,9 +479,13 @@ export function initializeCollabLanguagePolicy(deps: LanguagePolicyDeps) {
     // Dynamic department aliases: supports office-pack specific localized names.
     const messageNormalized = normalizeForSearch(message);
     const messageCompact = compactForSearch(message);
-    const departments = db
-      .prepare("SELECT id, name, name_ko, name_ja, name_zh FROM departments")
-      .all() as Array<{ id: string; name: string; name_ko?: string | null; name_ja?: string | null; name_zh?: string | null }>;
+    const departments = db.prepare("SELECT id, name, name_ko, name_ja, name_zh FROM departments").all() as Array<{
+      id: string;
+      name: string;
+      name_ko?: string | null;
+      name_ja?: string | null;
+      name_zh?: string | null;
+    }>;
     for (const dept of departments) {
       const aliases = [
         ...collectDepartmentAliases(dept.id),

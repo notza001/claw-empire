@@ -56,8 +56,16 @@ export function createSubtaskDelegationPromptBuilder(deps: PromptDeps) {
       .join("\n");
 
     const allSubtasks = db
-      .prepare("SELECT id, title, status, target_department_id, delegated_task_id FROM subtasks WHERE task_id = ? ORDER BY created_at")
-      .all(parentTask.id) as Array<{ id: string; title: string; status: string; target_department_id: string | null; delegated_task_id: string | null }>;
+      .prepare(
+        "SELECT id, title, status, target_department_id, delegated_task_id FROM subtasks WHERE task_id = ? ORDER BY created_at",
+      )
+      .all(parentTask.id) as Array<{
+      id: string;
+      title: string;
+      status: string;
+      target_department_id: string | null;
+      delegated_task_id: string | null;
+    }>;
 
     const statusIcon: Record<string, string> = {
       done: "✅",
@@ -66,9 +74,9 @@ export function createSubtaskDelegationPromptBuilder(deps: PromptDeps) {
       blocked: "🔒",
     };
 
-    const parentDept = db.prepare("SELECT department_id, workflow_pack_key FROM tasks WHERE id = ?").get(parentTask.id) as
-      | { department_id: string | null; workflow_pack_key: string | null }
-      | undefined;
+    const parentDept = db
+      .prepare("SELECT department_id, workflow_pack_key FROM tasks WHERE id = ?")
+      .get(parentTask.id) as { department_id: string | null; workflow_pack_key: string | null } | undefined;
 
     const subtaskLines = allSubtasks
       .map((st) => {
@@ -84,9 +92,7 @@ export function createSubtaskDelegationPromptBuilder(deps: PromptDeps) {
       .join("\n");
 
     // Collect completed sibling subtask artifacts so downstream teams can reference prior work
-    const completedSiblings = allSubtasks.filter(
-      (st) => st.status === "done" && !assignedIds.has(st.id),
-    );
+    const completedSiblings = allSubtasks.filter((st) => st.status === "done" && !assignedIds.has(st.id));
     let completedArtifactsBlock = "";
     if (completedSiblings.length > 0) {
       const artifactSections: string[] = [];
@@ -110,26 +116,25 @@ export function createSubtaskDelegationPromptBuilder(deps: PromptDeps) {
             .join("\n  ");
           const delegatedTask = db
             .prepare("SELECT title, description, project_path FROM tasks WHERE id = ?")
-            .get(sibling.delegated_task_id) as { title: string; description: string | null; project_path: string | null } | undefined;
+            .get(sibling.delegated_task_id) as
+            | { title: string; description: string | null; project_path: string | null }
+            | undefined;
           const desc = delegatedTask?.description
             ? delegatedTask.description.split("\n").slice(0, 15).join("\n  ")
             : "";
           artifactSections.push(
             `[${deptName}] ${sibling.title} (DONE)` +
-            (desc ? `\n  ${desc}` : "") +
-            (logSummary ? `\n  ---\n  ${logSummary}` : ""),
+              (desc ? `\n  ${desc}` : "") +
+              (logSummary ? `\n  ---\n  ${logSummary}` : ""),
           );
         } else {
           // Own-department subtask — completed by parent team directly (planning/documentation)
-          const siblingRow = db
-            .prepare("SELECT description FROM subtasks WHERE id = ?")
-            .get(sibling.id) as { description: string | null } | undefined;
-          const desc = siblingRow?.description
-            ? siblingRow.description.split("\n").slice(0, 10).join("\n  ")
-            : "";
+          const siblingRow = db.prepare("SELECT description FROM subtasks WHERE id = ?").get(sibling.id) as
+            | { description: string | null }
+            | undefined;
+          const desc = siblingRow?.description ? siblingRow.description.split("\n").slice(0, 10).join("\n  ") : "";
           artifactSections.push(
-            `[${deptName}] ${sibling.title} (DONE — completed by origin team)` +
-            (desc ? `\n  ${desc}` : ""),
+            `[${deptName}] ${sibling.title} (DONE — completed by origin team)` + (desc ? `\n  ${desc}` : ""),
           );
         }
       }

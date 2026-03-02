@@ -33,7 +33,12 @@ export function useLiveSyncScheduler({
     }
     liveSyncInFlightRef.current = true;
     const includeSeedAgents = shouldIncludeSeedAgents?.() === true;
-    Promise.all([api.getTasks(), api.getAgents({ includeSeed: includeSeedAgents }), api.getStats(), api.getDecisionInbox()])
+    Promise.all([
+      api.getTasks(),
+      api.getAgents({ includeSeed: includeSeedAgents }),
+      api.getStats(),
+      api.getDecisionInbox(),
+    ])
       .then(([nextTasks, nextAgents, nextStats, nextDecisionItems]) => {
         setTasks((prev) => (areTaskListsEquivalent(prev, nextTasks) ? prev : nextTasks));
         setAgents((prev) => (areAgentListsEquivalent(prev, nextAgents) ? prev : nextAgents));

@@ -187,9 +187,10 @@ export default function AgentManager({
             : [
                 ...agents,
                 {
-                  id: (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function")
-                    ? crypto.randomUUID()
-                    : `agent-${Date.now()}`,
+                  id:
+                    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                      ? crypto.randomUUID()
+                      : `agent-${Date.now()}`,
                   ...basePayload,
                   department_id: departmentId || null,
                   status: "idle" as const,
@@ -259,7 +260,16 @@ export default function AgentManager({
         setSaving(false);
       }
     },
-    [agents, closeModal, departments, isIsolatedPack, modalAgent, onAgentsChange, persistIsolatedProfile, useDbBackedPack],
+    [
+      agents,
+      closeModal,
+      departments,
+      isIsolatedPack,
+      modalAgent,
+      onAgentsChange,
+      persistIsolatedProfile,
+      useDbBackedPack,
+    ],
   );
 
   const openCreateDept = useCallback(() => {
@@ -331,7 +341,10 @@ export default function AgentManager({
       }));
       if (isIsolatedPack) {
         if (useDbBackedPack) {
-          const orders = nextDepartments.map((department) => ({ id: department.id, sort_order: department.sort_order }));
+          const orders = nextDepartments.map((department) => ({
+            id: department.id,
+            sort_order: department.sort_order,
+          }));
           await api.reorderDepartments(orders, { workflowPackKey: officePackKey });
           await persistIsolatedProfile(nextDepartments, agents);
           onAgentsChange();

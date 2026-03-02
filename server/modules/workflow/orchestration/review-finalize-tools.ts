@@ -96,10 +96,14 @@ export function createReviewFinalizeTools(deps: CreateReviewFinalizeToolsDeps) {
             "All delegated subtasks completed after resume; retrying review completion",
           );
           const yolo = readYoloModeEnabled(db);
-          setTimeout(() => finishReview(parentTaskId, parent.title, {
-            bypassProjectDecisionGate: yolo,
-            trigger: "delegated_subtask_completion",
-          }), 1200);
+          setTimeout(
+            () =>
+              finishReview(parentTaskId, parent.title, {
+                bypassProjectDecisionGate: yolo,
+                trigger: "delegated_subtask_completion",
+              }),
+            1200,
+          );
         }
       }
       return;
@@ -128,7 +132,9 @@ export function createReviewFinalizeTools(deps: CreateReviewFinalizeToolsDeps) {
   ): void {
     const lang = resolveLang(taskTitle);
     const currentTask = db
-      .prepare("SELECT status, department_id, source_task_id, project_id, workflow_pack_key, project_path FROM tasks WHERE id = ?")
+      .prepare(
+        "SELECT status, department_id, source_task_id, project_id, workflow_pack_key, project_path FROM tasks WHERE id = ?",
+      )
       .get(taskId) as
       | {
           status: string;
@@ -217,9 +223,9 @@ export function createReviewFinalizeTools(deps: CreateReviewFinalizeToolsDeps) {
     }
 
     let remainingSubtaskCount = (
-      db.prepare("SELECT COUNT(*) as cnt FROM subtasks WHERE task_id = ? AND status NOT IN ('done', 'cancelled')").get(
-        taskId,
-      ) as { cnt: number }
+      db
+        .prepare("SELECT COUNT(*) as cnt FROM subtasks WHERE task_id = ? AND status NOT IN ('done', 'cancelled')")
+        .get(taskId) as { cnt: number }
     ).cnt;
     if (remainingSubtaskCount > 0) {
       // Check if only VIDEO_FINAL_RENDER subtask(s) remain — trigger delegation instead of blocking forever
@@ -262,7 +268,11 @@ export function createReviewFinalizeTools(deps: CreateReviewFinalizeToolsDeps) {
               broadcast("subtask_update", db.prepare("SELECT * FROM subtasks WHERE id = ?").get(sub.id));
             }
           }
-          appendTaskLog(taskId, "system", "Review hold: only VIDEO_FINAL_RENDER remains — unblocking and triggering delegation.");
+          appendTaskLog(
+            taskId,
+            "system",
+            "Review hold: only VIDEO_FINAL_RENDER remains — unblocking and triggering delegation.",
+          );
           processSubtaskDelegations(taskId, { includeRender: true });
         } else {
           appendTaskLog(taskId, "system", `Review hold: VIDEO_FINAL_RENDER already delegated, waiting for completion.`);
@@ -377,7 +387,11 @@ export function createReviewFinalizeTools(deps: CreateReviewFinalizeToolsDeps) {
               if (stat.size > 0) {
                 verifiedPath = discovered;
                 verifiedSize = stat.size;
-                appendTaskLog(taskId, "system", `Review gate: video artifact discovered via directory scan: ${discovered} (${stat.size} bytes)`);
+                appendTaskLog(
+                  taskId,
+                  "system",
+                  `Review gate: video artifact discovered via directory scan: ${discovered} (${stat.size} bytes)`,
+                );
                 break;
               }
             } catch {
@@ -405,7 +419,9 @@ export function createReviewFinalizeTools(deps: CreateReviewFinalizeToolsDeps) {
               [
                 `'${taskTitle}' は \`${videoArtifactSpec.relativePath}\` 未確認のため承認/マージが保留されました。レンダー結果確認後に再承認してください。`,
               ],
-              [`'${taskTitle}' 因 \`${videoArtifactSpec.relativePath}\` 未验证，审批/合并已暂停。请先确认渲染结果后再审批。`],
+              [
+                `'${taskTitle}' 因 \`${videoArtifactSpec.relativePath}\` 未验证，审批/合并已暂停。请先确认渲染结果后再审批。`,
+              ],
             ),
             lang,
           ),

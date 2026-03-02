@@ -26,7 +26,9 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
 
   function parseIncludeSeedParam(input: unknown): boolean {
     if (Array.isArray(input)) input = input[0];
-    const raw = String(input ?? "").trim().toLowerCase();
+    const raw = String(input ?? "")
+      .trim()
+      .toLowerCase();
     return raw === "1" || raw === "true" || raw === "yes";
   }
 
@@ -38,7 +40,10 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
     return parsed ? { packKey: parsed, invalid: false } : { packKey: null, invalid: true };
   }
 
-  function resolveRequestedPackKey(queryRaw: unknown, bodyRaw?: unknown): { packKey: WorkflowPackKey; invalid: boolean } {
+  function resolveRequestedPackKey(
+    queryRaw: unknown,
+    bodyRaw?: unknown,
+  ): { packKey: WorkflowPackKey; invalid: boolean } {
     const fromQuery = resolvePackKeyFromInput(queryRaw);
     if (fromQuery.invalid) return { packKey: DEFAULT_WORKFLOW_PACK_KEY, invalid: true };
     if (fromQuery.packKey) return { packKey: fromQuery.packKey, invalid: false };
@@ -158,7 +163,9 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
         packKey === DEFAULT_WORKFLOW_PACK_KEY
           ? db.prepare("SELECT id FROM departments WHERE id = ?").get(id)
           : db
-              .prepare("SELECT department_id AS id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ?")
+              .prepare(
+                "SELECT department_id AS id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ?",
+              )
               .get(packKey, id);
       if (existing) return res.status(409).json({ error: "department_id_exists" });
 
@@ -173,10 +180,12 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
 
       const maxOrder =
         packKey === DEFAULT_WORKFLOW_PACK_KEY
-          ? (db.prepare("SELECT MAX(sort_order) AS m FROM departments").get() as any)?.m ?? 0
-          : (db
-              .prepare("SELECT MAX(sort_order) AS m FROM office_pack_departments WHERE workflow_pack_key = ?")
-              .get(packKey) as any)?.m ?? 0;
+          ? ((db.prepare("SELECT MAX(sort_order) AS m FROM departments").get() as any)?.m ?? 0)
+          : ((
+              db
+                .prepare("SELECT MAX(sort_order) AS m FROM office_pack_departments WHERE workflow_pack_key = ?")
+                .get(packKey) as any
+            )?.m ?? 0);
       try {
         if (packKey === DEFAULT_WORKFLOW_PACK_KEY) {
           db.prepare(
@@ -185,7 +194,19 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
         } else {
           db.prepare(
             "INSERT INTO office_pack_departments (workflow_pack_key, department_id, name, name_ko, name_ja, name_zh, icon, color, description, prompt, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-          ).run(packKey, id, name, nameKo, nameJa, nameZh, icon, color, description || null, prompt || null, maxOrder + 1);
+          ).run(
+            packKey,
+            id,
+            name,
+            nameKo,
+            nameJa,
+            nameZh,
+            icon,
+            color,
+            description || null,
+            prompt || null,
+            maxOrder + 1,
+          );
         }
       } catch (err: any) {
         const msg = String(err?.message ?? err);
@@ -311,11 +332,9 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
         if (packKey === DEFAULT_WORKFLOW_PACK_KEY) {
           db.prepare(`UPDATE departments SET ${sets.join(", ")} WHERE id = ?`).run(...vals);
         } else {
-          db.prepare(`UPDATE office_pack_departments SET ${sets.join(", ")} WHERE workflow_pack_key = ? AND department_id = ?`).run(
-            ...vals.slice(0, -1),
-            packKey,
-            id,
-          );
+          db.prepare(
+            `UPDATE office_pack_departments SET ${sets.join(", ")} WHERE workflow_pack_key = ? AND department_id = ?`,
+          ).run(...vals.slice(0, -1), packKey, id);
         }
       } catch (err: any) {
         const msg = String(err?.message ?? err);
@@ -348,7 +367,9 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
         packKey === DEFAULT_WORKFLOW_PACK_KEY
           ? db.prepare("SELECT id FROM departments WHERE id = ?").get(id)
           : db
-              .prepare("SELECT department_id AS id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ?")
+              .prepare(
+                "SELECT department_id AS id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ?",
+              )
               .get(packKey, id);
       if (!existing) return res.status(404).json({ error: "not_found" });
       if (packKey === DEFAULT_WORKFLOW_PACK_KEY && PROTECTED_DEPARTMENT_IDS.has(id)) {
@@ -357,33 +378,46 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
 
       const agentCount =
         packKey === DEFAULT_WORKFLOW_PACK_KEY
-          ? (db
-              .prepare(
-                `SELECT COUNT(*) AS c FROM agents WHERE department_id = ?${hasAgentWorkflowPackColumn ? " AND COALESCE(workflow_pack_key, 'development') = 'development'" : ""}`,
-              )
-              .get(id) as any)?.c ?? 0
-          : (db
-              .prepare(
-                `SELECT COUNT(*) AS c FROM agents WHERE department_id = ?${hasAgentWorkflowPackColumn ? " AND COALESCE(workflow_pack_key, 'development') = ?" : ""}`,
-              )
-              .get(...(hasAgentWorkflowPackColumn ? [id, packKey] : [id])) as any)?.c ?? 0;
+          ? ((
+              db
+                .prepare(
+                  `SELECT COUNT(*) AS c FROM agents WHERE department_id = ?${hasAgentWorkflowPackColumn ? " AND COALESCE(workflow_pack_key, 'development') = 'development'" : ""}`,
+                )
+                .get(id) as any
+            )?.c ?? 0)
+          : ((
+              db
+                .prepare(
+                  `SELECT COUNT(*) AS c FROM agents WHERE department_id = ?${hasAgentWorkflowPackColumn ? " AND COALESCE(workflow_pack_key, 'development') = ?" : ""}`,
+                )
+                .get(...(hasAgentWorkflowPackColumn ? [id, packKey] : [id])) as any
+            )?.c ?? 0);
       if (agentCount > 0) return res.status(409).json({ error: "department_has_agents", agent_count: agentCount });
       const taskCount =
         packKey === DEFAULT_WORKFLOW_PACK_KEY
-          ? (db
-              .prepare(
-                "SELECT COUNT(*) AS c FROM tasks WHERE department_id = ? AND COALESCE(workflow_pack_key, 'development') = 'development'",
-              )
-              .get(id) as any)?.c ?? 0
-          : (db
-              .prepare("SELECT COUNT(*) AS c FROM tasks WHERE department_id = ? AND COALESCE(workflow_pack_key, 'development') = ?")
-              .get(id, packKey) as any)?.c ?? 0;
+          ? ((
+              db
+                .prepare(
+                  "SELECT COUNT(*) AS c FROM tasks WHERE department_id = ? AND COALESCE(workflow_pack_key, 'development') = 'development'",
+                )
+                .get(id) as any
+            )?.c ?? 0)
+          : ((
+              db
+                .prepare(
+                  "SELECT COUNT(*) AS c FROM tasks WHERE department_id = ? AND COALESCE(workflow_pack_key, 'development') = ?",
+                )
+                .get(id, packKey) as any
+            )?.c ?? 0);
       if (taskCount > 0) return res.status(409).json({ error: "department_has_tasks", task_count: taskCount });
 
       if (packKey === DEFAULT_WORKFLOW_PACK_KEY) {
         db.prepare("DELETE FROM departments WHERE id = ?").run(id);
       } else {
-        db.prepare("DELETE FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ?").run(packKey, id);
+        db.prepare("DELETE FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ?").run(
+          packKey,
+          id,
+        );
       }
       broadcast("departments_changed", { workflow_pack_key: packKey });
       res.json({ ok: true });
@@ -419,7 +453,9 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
         const stmtTemp =
           packKey === DEFAULT_WORKFLOW_PACK_KEY
             ? db.prepare("UPDATE departments SET sort_order = ? WHERE id = ?")
-            : db.prepare("UPDATE office_pack_departments SET sort_order = ? WHERE workflow_pack_key = ? AND department_id = ?");
+            : db.prepare(
+                "UPDATE office_pack_departments SET sort_order = ? WHERE workflow_pack_key = ? AND department_id = ?",
+              );
         for (let i = 0; i < orders.length; i++) {
           if (packKey === DEFAULT_WORKFLOW_PACK_KEY) {
             stmtTemp.run(tempBase + i, orders[i].id);
@@ -431,7 +467,9 @@ export function registerDepartmentRoutes(deps: DepartmentRouteDeps): void {
         const stmtFinal =
           packKey === DEFAULT_WORKFLOW_PACK_KEY
             ? db.prepare("UPDATE departments SET sort_order = ? WHERE id = ?")
-            : db.prepare("UPDATE office_pack_departments SET sort_order = ? WHERE workflow_pack_key = ? AND department_id = ?");
+            : db.prepare(
+                "UPDATE office_pack_departments SET sort_order = ? WHERE workflow_pack_key = ? AND department_id = ?",
+              );
         for (const item of orders) {
           if (packKey === DEFAULT_WORKFLOW_PACK_KEY) {
             stmtFinal.run(item.sort_order, item.id);

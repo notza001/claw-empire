@@ -372,12 +372,8 @@ export function createReportRoutingTools(deps: ReportRoutingDeps) {
       outputFormat === "ppt"
         ? "- [DELIVERABLES] Produce both outputs in this run: (1) editable HTML slide source bundle and (2) final .pptx deck."
         : "",
-      outputFormat === "ppt"
-        ? `- [DELIVERABLES] HTML source entry must exist at: ${htmlSourceEntryPath}`
-        : "",
-      outputFormat === "ppt"
-        ? `- [DELIVERABLES] PPTX artifact must exist at: ${outputPath}`
-        : "",
+      outputFormat === "ppt" ? `- [DELIVERABLES] HTML source entry must exist at: ${htmlSourceEntryPath}` : "",
+      outputFormat === "ppt" ? `- [DELIVERABLES] PPTX artifact must exist at: ${outputPath}` : "",
       outputFormat === "ppt"
         ? `- [DELIVERABLES] Include file evidence for both outputs in your report message (example: \`ls -lh ${htmlSourceEntryPath} ${outputPath}\`).`
         : "",

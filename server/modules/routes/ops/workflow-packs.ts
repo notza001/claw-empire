@@ -101,7 +101,9 @@ function classifyWorkflowPack(text: string): WorkflowRouteResult {
   };
 }
 
-export function registerWorkflowPackRoutes(ctx: Pick<RuntimeContext, "app" | "db" | "nowMs" | "normalizeTextField">): void {
+export function registerWorkflowPackRoutes(
+  ctx: Pick<RuntimeContext, "app" | "db" | "nowMs" | "normalizeTextField">,
+): void {
   const { app, db, nowMs, normalizeTextField } = ctx;
 
   app.get("/api/workflow-packs", (_req, res) => {

@@ -274,16 +274,7 @@ export function registerAgentSpawnRoute(ctx: RuntimeContext): void {
       broadcast("agent_status", updatedAgent);
       broadcast("task_update", db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId));
       notifyTaskStatus(taskId, task.title, "in_progress", taskLang);
-      launchHttpAgent(
-        taskId,
-        provider,
-        prompt,
-        agentCwd,
-        logPath,
-        controller,
-        fakePid,
-        agent.oauth_account_id ?? null,
-      );
+      launchHttpAgent(taskId, provider, prompt, agentCwd, logPath, controller, fakePid, agent.oauth_account_id ?? null);
       return res.json({ ok: true, pid: fakePid, logPath, cwd: agentCwd });
     }
 

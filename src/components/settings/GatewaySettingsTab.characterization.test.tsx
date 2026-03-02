@@ -86,9 +86,7 @@ describe("GatewaySettingsTab characterization", () => {
       },
     });
 
-    render(
-      <GatewaySettingsTab t={t} form={form as any} setForm={vi.fn()} persistSettings={vi.fn()} />,
-    );
+    render(<GatewaySettingsTab t={t} form={form as any} setForm={vi.fn()} persistSettings={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.queryByText("Empty Chat")).not.toBeInTheDocument();
@@ -119,9 +117,7 @@ describe("GatewaySettingsTab characterization", () => {
       },
     });
 
-    render(
-      <GatewaySettingsTab t={t} form={form as any} setForm={vi.fn()} persistSettings={vi.fn()} />,
-    );
+    render(<GatewaySettingsTab t={t} form={form as any} setForm={vi.fn()} persistSettings={vi.fn()} />);
 
     const textarea = screen.getByPlaceholderText("Type a test message...");
     await user.type(textarea, "  hello from test  ");

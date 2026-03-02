@@ -211,9 +211,7 @@ function selectExistingAgentIds(db: DbLike, candidateIds: string[]): string[] {
       `,
       )
       .all(...(candidateIds as SQLInputValue[])) as Array<{ id?: unknown }>;
-    return rows
-      .map((row) => normalizeText(row?.id))
-      .filter((id): id is string => id.length > 0);
+    return rows.map((row) => normalizeText(row?.id)).filter((id): id is string => id.length > 0);
   } catch {
     return [];
   }
@@ -232,9 +230,7 @@ function selectAgentIdsByDepartments(db: DbLike, departmentIds: string[]): strin
       `,
       )
       .all(...(departmentIds as SQLInputValue[])) as Array<{ id?: unknown }>;
-    return rows
-      .map((row) => normalizeText(row?.id))
-      .filter((id): id is string => id.length > 0);
+    return rows.map((row) => normalizeText(row?.id)).filter((id): id is string => id.length > 0);
   } catch {
     return [];
   }
@@ -257,7 +253,10 @@ function loadPackProfileAgentScope(db: DbLike, packKey: WorkflowPackKey): string
   return null;
 }
 
-function buildPreferredDepartmentOrder(packKey: WorkflowPackKey, taskDepartmentId: string | null | undefined): string[] {
+function buildPreferredDepartmentOrder(
+  packKey: WorkflowPackKey,
+  taskDepartmentId: string | null | undefined,
+): string[] {
   const preferred = PACK_DEPARTMENT_PRIORITIES[packKey] ?? PACK_DEPARTMENT_PRIORITIES[DEFAULT_WORKFLOW_PACK_KEY];
   const out: string[] = [];
   const add = (value: string | null | undefined) => {
@@ -277,7 +276,9 @@ function loadManualProjectAgentScope(db: DbLike, projectId: string | null | unde
     | ProjectAssignmentModeRow
     | undefined;
   if (project?.assignment_mode !== "manual") return null;
-  const rows = db.prepare("SELECT agent_id FROM project_agents WHERE project_id = ?").all(projectId) as ProjectAgentRow[];
+  const rows = db
+    .prepare("SELECT agent_id FROM project_agents WHERE project_id = ?")
+    .all(projectId) as ProjectAgentRow[];
   return rows.map((row) => row.agent_id).filter((id) => typeof id === "string" && id.length > 0);
 }
 
@@ -313,14 +314,13 @@ function loadActiveOAuthAccountIdsByProvider(db: DbLike): Map<string, Set<string
   }
 }
 
-function isOAuthBackedProviderReady(agent: AutoAssignableAgent, activeOAuthByProvider: Map<string, Set<string>> | null): boolean {
+function isOAuthBackedProviderReady(
+  agent: AutoAssignableAgent,
+  activeOAuthByProvider: Map<string, Set<string>> | null,
+): boolean {
   const provider = normalizeText(agent.cli_provider).toLowerCase();
   const requiredOAuthProvider =
-    provider === "copilot"
-      ? "github"
-      : provider === "antigravity"
-        ? "google_antigravity"
-        : null;
+    provider === "copilot" ? "github" : provider === "antigravity" ? "google_antigravity" : null;
   if (!requiredOAuthProvider) return true;
   if (!activeOAuthByProvider) return true;
 

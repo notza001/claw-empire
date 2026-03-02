@@ -142,21 +142,19 @@ describe("meeting leader selection - office pack scope", () => {
       insertLeader(db, { id: "video_preprod-seed-1", dept: "planning" });
       insertLeader(db, { id: "video_preprod-seed-2", dept: "dev" });
 
-      db.prepare("INSERT INTO tasks (id, title, description, department_id, project_id, workflow_pack_key) VALUES (?, ?, ?, ?, ?, ?)").run(
-        "task-video",
-        "video task",
-        "make storyboard",
-        "planning",
-        null,
-        "video_preprod",
-      );
+      db.prepare(
+        "INSERT INTO tasks (id, title, description, department_id, project_id, workflow_pack_key) VALUES (?, ?, ?, ?, ?, ?)",
+      ).run("task-video", "video task", "make storyboard", "planning", null, "video_preprod");
 
       db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
         "officePackProfiles",
         JSON.stringify({
           video_preprod: {
             departments: [{ id: "planning" }, { id: "dev" }],
-            agents: [{ id: "video_preprod-seed-1", department_id: "planning" }, { id: "video_preprod-seed-2", department_id: "dev" }],
+            agents: [
+              { id: "video_preprod-seed-1", department_id: "planning" },
+              { id: "video_preprod-seed-2", department_id: "dev" },
+            ],
           },
         }),
       );
@@ -216,11 +214,21 @@ describe("meeting leader selection - office pack scope", () => {
 
       db.prepare("INSERT INTO projects (id, assignment_mode) VALUES (?, 'manual')").run("proj-manual");
       // manual 프로젝트에 planning 리더만 지정된 상태
-      db.prepare("INSERT INTO project_agents (project_id, agent_id) VALUES (?, ?)").run("proj-manual", "video_preprod-seed-1");
+      db.prepare("INSERT INTO project_agents (project_id, agent_id) VALUES (?, ?)").run(
+        "proj-manual",
+        "video_preprod-seed-1",
+      );
 
       db.prepare(
         "INSERT INTO tasks (id, title, description, department_id, project_id, workflow_pack_key) VALUES (?, ?, ?, ?, ?, ?)",
-      ).run("task-manual-video", "영상 프리프로덕션 킥오프", "콘티/씬 설계 보강 필요", "planning", "proj-manual", "video_preprod");
+      ).run(
+        "task-manual-video",
+        "영상 프리프로덕션 킥오프",
+        "콘티/씬 설계 보강 필요",
+        "planning",
+        "proj-manual",
+        "video_preprod",
+      );
 
       const tools = createMeetingLeaderSelectionTools({
         db,

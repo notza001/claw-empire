@@ -93,7 +93,9 @@ export default function TaskReportPopup({ report, agents, departments, uiLanguag
     }
     return map;
   }, [departments]);
-  const taskDeptFromMap = currentReport.task.department_id ? departmentById.get(currentReport.task.department_id) : undefined;
+  const taskDeptFromMap = currentReport.task.department_id
+    ? departmentById.get(currentReport.task.department_id)
+    : undefined;
   const taskAgentName =
     uiLanguage === "ko"
       ? currentReport.task.agent_name_ko || currentReport.task.agent_name

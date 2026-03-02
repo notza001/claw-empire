@@ -85,7 +85,10 @@ export default function AppHeaderBar({
         >
           ☰
         </button>
-        <h1 className="truncate text-base font-bold sm:text-lg flex items-center gap-2" style={{ color: "var(--th-text-heading)" }}>
+        <h1
+          className="truncate text-base font-bold sm:text-lg flex items-center gap-2"
+          style={{ color: "var(--th-text-heading)" }}
+        >
           {currentView === "agents" && (
             <span className="relative inline-flex items-center" style={{ width: 30, height: 22 }}>
               <img
@@ -241,10 +244,7 @@ export default function AppHeaderBar({
                 style={{ border: "1px solid var(--th-border)", background: "var(--th-bg-surface)" }}
               >
                 {officePackControl && (
-                  <div
-                    className="px-3 py-2"
-                    style={{ borderBottom: "1px solid var(--th-border)" }}
-                  >
+                  <div className="px-3 py-2" style={{ borderBottom: "1px solid var(--th-border)" }}>
                     <label
                       htmlFor="mobile-office-pack-selector"
                       className="mb-1 block text-[10px] uppercase tracking-wider"

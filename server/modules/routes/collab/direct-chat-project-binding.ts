@@ -5,11 +5,7 @@ import { randomUUID } from "node:crypto";
 import type { Lang } from "../../../types/lang.ts";
 import type { DelegationOptions } from "./project-resolution.ts";
 import { detectProjectKindChoice } from "./direct-chat-intent-utils.ts";
-import type {
-  AgentRow,
-  DirectChatDeps,
-  ExistingProjectCandidate,
-} from "./direct-chat-types.ts";
+import type { AgentRow, DirectChatDeps, ExistingProjectCandidate } from "./direct-chat-types.ts";
 
 export const RECENT_EXISTING_PROJECT_LIMIT = 10;
 
@@ -179,7 +175,10 @@ function normalizeLooseProjectName(value: string): string {
     .trim();
 }
 
-export function loadRecentExistingProjects(deps: Pick<ProjectBindingDeps, "db" | "normalizeTextField">, limit: number = 5): ExistingProjectCandidate[] {
+export function loadRecentExistingProjects(
+  deps: Pick<ProjectBindingDeps, "db" | "normalizeTextField">,
+  limit: number = 5,
+): ExistingProjectCandidate[] {
   const rows = deps.db
     .prepare(
       `
@@ -220,7 +219,10 @@ function projectNameLabel(lang: Lang): string {
   return "이름";
 }
 
-function resolveExistingProjectDisplayName(normalizeTextField: DirectChatDeps["normalizeTextField"], candidate: ExistingProjectCandidate): string {
+function resolveExistingProjectDisplayName(
+  normalizeTextField: DirectChatDeps["normalizeTextField"],
+  candidate: ExistingProjectCandidate,
+): string {
   const explicitName = normalizeTextField(candidate.name);
   if (explicitName) return explicitName;
 
@@ -363,7 +365,10 @@ function extractProjectNameCandidates(text: string): string[] {
   return values;
 }
 
-function findProjectByNameCandidate(deps: Pick<ProjectBindingDeps, "db">, nameCandidate: string): ProjectNameCandidateRow | null {
+function findProjectByNameCandidate(
+  deps: Pick<ProjectBindingDeps, "db">,
+  nameCandidate: string,
+): ProjectNameCandidateRow | null {
   const exact = deps.db
     .prepare(
       `

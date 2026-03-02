@@ -14,7 +14,10 @@ import type {
 } from "../types";
 
 // Departments
-export async function getDepartments(options?: { workflowPackKey?: WorkflowPackKey; includeSeed?: boolean }): Promise<Department[]> {
+export async function getDepartments(options?: {
+  workflowPackKey?: WorkflowPackKey;
+  includeSeed?: boolean;
+}): Promise<Department[]> {
   const params = new URLSearchParams();
   if (options?.workflowPackKey) params.set("workflow_pack_key", options.workflowPackKey);
   if (options?.includeSeed) params.set("include_seed", "1");
@@ -110,7 +113,7 @@ export async function getMeetingPresence(): Promise<MeetingPresence[]> {
 
 export async function updateAgent(
   id: string,
-  data: (Partial<
+  data: Partial<
     Pick<
       Agent,
       | "name"
@@ -133,9 +136,9 @@ export async function updateAgent(
       | "personality"
     >
   > & {
-      workflow_pack_key?: WorkflowPackKey;
-      force_planning_leader_override?: boolean;
-    }),
+    workflow_pack_key?: WorkflowPackKey;
+    force_planning_leader_override?: boolean;
+  },
 ): Promise<void> {
   await patch(`/api/agents/${id}`, data);
 }

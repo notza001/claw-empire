@@ -20,11 +20,7 @@ export function reconcileVideoRenderDelegationState(
   const { db, nowMs, broadcast } = deps;
 
   const delegatedIds = [
-    ...new Set(
-      pendingRender
-        .map((sub) => String(sub.delegated_task_id ?? "").trim())
-        .filter((id) => id.length > 0),
-    ),
+    ...new Set(pendingRender.map((sub) => String(sub.delegated_task_id ?? "").trim()).filter((id) => id.length > 0)),
   ];
   const delegatedStatusById = new Map<string, string>();
   if (delegatedIds.length > 0) {

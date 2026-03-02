@@ -130,9 +130,11 @@ describe("ops settings seed init guard", () => {
       createHarness(db);
 
       const totalAgents = (db.prepare("SELECT COUNT(*) AS c FROM agents").get() as { c: number }).c;
-      const seedAgents = (db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE '%-seed-%'").get() as {
-        c: number;
-      }).c;
+      const seedAgents = (
+        db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE '%-seed-%'").get() as {
+          c: number;
+        }
+      ).c;
       const initFlag = db.prepare("SELECT value FROM settings WHERE key = 'officePackSeedAgentsInitialized'").get() as
         | { value: string }
         | undefined;
@@ -171,9 +173,11 @@ describe("ops settings seed init guard", () => {
       expect(res.statusCode).toBe(200);
 
       const totalAgents = (db.prepare("SELECT COUNT(*) AS c FROM agents").get() as { c: number }).c;
-      const seedAgents = (db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE '%-seed-%'").get() as {
-        c: number;
-      }).c;
+      const seedAgents = (
+        db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE '%-seed-%'").get() as {
+          c: number;
+        }
+      ).c;
       const initFlag = db.prepare("SELECT value FROM settings WHERE key = 'officePackSeedAgentsInitialized'").get() as
         | { value: string }
         | undefined;
@@ -209,7 +213,10 @@ describe("ops settings seed init guard", () => {
           },
         }),
       );
-      db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run("officeWorkflowPack", JSON.stringify("video_preprod"));
+      db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
+        "officeWorkflowPack",
+        JSON.stringify("video_preprod"),
+      );
 
       const { getRoutes } = createHarness(db);
       const getHandler = getRoutes.get("/api/settings");
@@ -219,9 +226,9 @@ describe("ops settings seed init guard", () => {
       getHandler?.({}, res);
       expect(res.statusCode).toBe(200);
 
-      const seedAgent = db
-        .prepare("SELECT id, sprite_number FROM agents WHERE id = 'video_preprod-seed-1'")
-        .get() as { id?: string; sprite_number?: number } | undefined;
+      const seedAgent = db.prepare("SELECT id, sprite_number FROM agents WHERE id = 'video_preprod-seed-1'").get() as
+        | { id?: string; sprite_number?: number }
+        | undefined;
       const hydratedPacks = db.prepare("SELECT value FROM settings WHERE key = 'officePackHydratedPacks'").get() as
         | { value: string }
         | undefined;
@@ -278,9 +285,11 @@ describe("ops settings seed init guard", () => {
 
       expect(res.statusCode).toBe(200);
 
-      const seedAgentCount = (db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE 'video_preprod-seed-%'").get() as {
-        c: number;
-      }).c;
+      const seedAgentCount = (
+        db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE 'video_preprod-seed-%'").get() as {
+          c: number;
+        }
+      ).c;
       const hydratedPacks = db.prepare("SELECT value FROM settings WHERE key = 'officePackHydratedPacks'").get() as
         | { value: string }
         | undefined;
@@ -331,9 +340,11 @@ describe("ops settings seed init guard", () => {
       putHandler?.({ body: { officeWorkflowPack: "video_preprod" } }, res);
       expect(res.statusCode).toBe(200);
 
-      const seedAgentCount = (db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE 'video_preprod-seed-%'").get() as {
-        c: number;
-      }).c;
+      const seedAgentCount = (
+        db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE 'video_preprod-seed-%'").get() as {
+          c: number;
+        }
+      ).c;
       expect(seedAgentCount).toBe(0);
     } finally {
       db.close();
@@ -402,13 +413,14 @@ describe("ops settings seed init guard", () => {
       );
       expect(res.statusCode).toBe(200);
 
-      const seedAgentCount = (db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE 'video_preprod-seed-%'").get() as {
-        c: number;
-      }).c;
+      const seedAgentCount = (
+        db.prepare("SELECT COUNT(*) AS c FROM agents WHERE id LIKE 'video_preprod-seed-%'").get() as {
+          c: number;
+        }
+      ).c;
       expect(seedAgentCount).toBe(0);
     } finally {
       db.close();
     }
   });
-
 });

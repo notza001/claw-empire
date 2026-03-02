@@ -102,7 +102,9 @@ export default function ChatEditorModal({
         </div>
 
         <div>
-          <label className="block text-xs text-slate-400 mb-1">{t({ ko: "토큰", en: "Token", ja: "トークン", zh: "令牌" })}</label>
+          <label className="block text-xs text-slate-400 mb-1">
+            {t({ ko: "토큰", en: "Token", ja: "トークン", zh: "令牌" })}
+          </label>
           <input
             type="password"
             value={editor.token}
@@ -189,7 +191,12 @@ export default function ChatEditorModal({
           </select>
           {workflowPacksLoading && (
             <div className="mt-1 text-[11px] text-slate-500">
-              {t({ ko: "팩 목록 불러오는 중...", en: "Loading packs...", ja: "パックを読み込み中...", zh: "正在加载工作流包..." })}
+              {t({
+                ko: "팩 목록 불러오는 중...",
+                en: "Loading packs...",
+                ja: "パックを読み込み中...",
+                zh: "正在加载工作流包...",
+              })}
             </div>
           )}
         </div>
@@ -220,7 +227,10 @@ export default function ChatEditorModal({
           >
             {t({ ko: "취소", en: "Cancel", ja: "キャンセル", zh: "取消" })}
           </button>
-          <button onClick={handleSaveEditor} className="px-3 py-1.5 text-xs rounded bg-blue-600 text-white hover:bg-blue-500">
+          <button
+            onClick={handleSaveEditor}
+            className="px-3 py-1.5 text-xs rounded bg-blue-600 text-white hover:bg-blue-500"
+          >
             {t({ ko: "확인", en: "Confirm", ja: "確認", zh: "确认" })}
           </button>
         </div>

@@ -81,10 +81,7 @@ export type RemotionGateResult = {
   scans: RemotionGateScan[];
 };
 
-export function evaluateRemotionOnlyGateFromLogFiles(args: {
-  logsDir: string;
-  taskIds: string[];
-}): RemotionGateResult {
+export function evaluateRemotionOnlyGateFromLogFiles(args: { logsDir: string; taskIds: string[] }): RemotionGateResult {
   const ids: string[] = [];
   const seen = new Set<string>();
   for (const raw of args.taskIds) {

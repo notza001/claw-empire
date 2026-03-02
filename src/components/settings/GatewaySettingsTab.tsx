@@ -94,7 +94,7 @@ export default function GatewaySettingsTab({ t, form, setForm, persistSettings }
       const existing = map.get(pack.key);
       map.set(pack.key, {
         key: pack.key,
-        name: typeof pack.name === "string" && pack.name.trim() ? pack.name.trim() : existing?.name ?? pack.key,
+        name: typeof pack.name === "string" && pack.name.trim() ? pack.name.trim() : (existing?.name ?? pack.key),
         enabled: pack.enabled !== false,
       });
     }

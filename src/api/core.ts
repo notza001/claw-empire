@@ -260,7 +260,10 @@ async function doBootstrapSession(promptOnUnauthorized: boolean): Promise<boolea
   return false;
 }
 
-export async function bootstrapSession(options?: { promptOnUnauthorized?: boolean; force?: boolean }): Promise<boolean> {
+export async function bootstrapSession(options?: {
+  promptOnUnauthorized?: boolean;
+  force?: boolean;
+}): Promise<boolean> {
   const force = options?.force === true;
   if (!force && readStoredCsrfToken()) return true;
   const promptOnUnauthorized = options?.promptOnUnauthorized ?? true;

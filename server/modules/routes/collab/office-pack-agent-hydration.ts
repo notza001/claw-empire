@@ -164,7 +164,7 @@ function findOfficePackProfileAgentById(
     if (!agent) continue;
 
     const department = agent.department_id
-      ? (departments as OfficePackProfileDepartment[]).find((entry) => entry.id === agent.department_id) ?? null
+      ? ((departments as OfficePackProfileDepartment[]).find((entry) => entry.id === agent.department_id) ?? null)
       : null;
     return { packKey: rawPackKey, agent, department };
   }
@@ -187,7 +187,9 @@ function ensureDepartmentExists(
   } else {
     try {
       const existingPack = db
-        .prepare("SELECT department_id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ? LIMIT 1")
+        .prepare(
+          "SELECT department_id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ? LIMIT 1",
+        )
         .get(packKey, departmentId) as { department_id?: unknown } | undefined;
       if (normalizeText(existingPack?.department_id)) return departmentId;
     } catch {
@@ -294,7 +296,9 @@ function ensureDepartmentExists(
 
   try {
     const insertedPack = db
-      .prepare("SELECT department_id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ? LIMIT 1")
+      .prepare(
+        "SELECT department_id FROM office_pack_departments WHERE workflow_pack_key = ? AND department_id = ? LIMIT 1",
+      )
       .get(packKey, departmentId) as { department_id?: unknown } | undefined;
     if (normalizeText(insertedPack?.department_id)) return departmentId;
   } catch {
@@ -306,11 +310,7 @@ function ensureDepartmentExists(
   return normalizeText(inserted?.id) ? departmentId : null;
 }
 
-export function hydrateOfficePackAgentFromSettings(
-  db: DbLike,
-  agentId: string,
-  nowMs: () => number,
-): AgentRow | null {
+export function hydrateOfficePackAgentFromSettings(db: DbLike, agentId: string, nowMs: () => number): AgentRow | null {
   const normalizedAgentId = normalizeText(agentId);
   if (!normalizedAgentId) return null;
 
@@ -536,7 +536,7 @@ export function syncOfficePackAgentsFromProfiles(
       ? profile.agents.map((entry) => normalizeOfficePackProfileAgent(entry, now)).filter(Boolean)
       : [];
     for (const agent of agents as OfficePackProfileAgent[]) {
-      const matchedDept = agent.department_id ? departmentById.get(agent.department_id) ?? null : null;
+      const matchedDept = agent.department_id ? (departmentById.get(agent.department_id) ?? null) : null;
       agentsSynced += upsertOfficePackProfileAgent(db, rawPackKey, agent, matchedDept, now);
     }
   }
@@ -579,7 +579,7 @@ export function syncOfficePackAgentsForPack(
     ? profile.agents.map((entry) => normalizeOfficePackProfileAgent(entry, now)).filter(Boolean)
     : [];
   for (const agent of agents as OfficePackProfileAgent[]) {
-    const matchedDept = agent.department_id ? departmentById.get(agent.department_id) ?? null : null;
+    const matchedDept = agent.department_id ? (departmentById.get(agent.department_id) ?? null) : null;
     agentsSynced += upsertOfficePackProfileAgent(db, resolvedPackKey, agent, matchedDept, now);
   }
 

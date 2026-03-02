@@ -26,7 +26,9 @@ export function registerOpsSettingsStatsRoutes(ctx: RuntimeContext): void {
       | { value?: unknown }
       | undefined;
     if (!row) return false;
-    const raw = String(row.value ?? "").trim().toLowerCase();
+    const raw = String(row.value ?? "")
+      .trim()
+      .toLowerCase();
     if (!raw) return false;
     if (raw === "true" || raw === "1") return true;
     try {
@@ -38,9 +40,9 @@ export function registerOpsSettingsStatsRoutes(ctx: RuntimeContext): void {
   };
 
   const markSeedInitDone = (): void => {
-    db.prepare("INSERT INTO settings (key, value) VALUES (?, 'true') ON CONFLICT(key) DO UPDATE SET value = 'true'").run(
-      OFFICE_PACK_SEED_INIT_KEY,
-    );
+    db.prepare(
+      "INSERT INTO settings (key, value) VALUES (?, 'true') ON CONFLICT(key) DO UPDATE SET value = 'true'",
+    ).run(OFFICE_PACK_SEED_INIT_KEY);
   };
 
   const maybeRunOfficePackSeedInit = (): void => {
@@ -85,9 +87,11 @@ export function registerOpsSettingsStatsRoutes(ctx: RuntimeContext): void {
 
     const profilesValue =
       profilesOverride ??
-      (db.prepare("SELECT value FROM settings WHERE key = ? LIMIT 1").get(OFFICE_PACK_PROFILES_KEY) as
-        | { value?: unknown }
-        | undefined)?.value;
+      (
+        db.prepare("SELECT value FROM settings WHERE key = ? LIMIT 1").get(OFFICE_PACK_PROFILES_KEY) as
+          | { value?: unknown }
+          | undefined
+      )?.value;
     if (profilesValue === undefined) return;
 
     const result = syncOfficePackAgentsForPack(db, profilesValue, selectedPack, nowMs);
@@ -105,12 +109,12 @@ export function registerOpsSettingsStatsRoutes(ctx: RuntimeContext): void {
 
   app.get("/api/settings", (_req, res) => {
     try {
-      const selectedPackRow = db.prepare("SELECT value FROM settings WHERE key = ? LIMIT 1").get("officeWorkflowPack") as
-        | { value?: unknown }
-        | undefined;
-      const profilesRow = db.prepare("SELECT value FROM settings WHERE key = ? LIMIT 1").get(OFFICE_PACK_PROFILES_KEY) as
-        | { value?: unknown }
-        | undefined;
+      const selectedPackRow = db
+        .prepare("SELECT value FROM settings WHERE key = ? LIMIT 1")
+        .get("officeWorkflowPack") as { value?: unknown } | undefined;
+      const profilesRow = db
+        .prepare("SELECT value FROM settings WHERE key = ? LIMIT 1")
+        .get(OFFICE_PACK_PROFILES_KEY) as { value?: unknown } | undefined;
       maybeHydratePackOnFirstSelection(selectedPackRow?.value, profilesRow?.value);
     } catch {
       // best-effort hydration only

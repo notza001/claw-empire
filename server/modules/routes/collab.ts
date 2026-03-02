@@ -183,7 +183,11 @@ export function registerRoutesPartB(ctx: RuntimeContext): RouteCollabExports {
         .get(normalizedTaskId, `${TASK_MESSENGER_SESSION_ROUTE_PREFIX} %`) as { message?: string } | undefined;
       const sessionKey =
         typeof sessionRow?.message === "string" ? parseTaskMessengerSessionRouteLine(sessionRow.message) : null;
-      taskMessengerRouteByTaskId.set(normalizedTaskId, { ...parsed, sessionKey: sessionKey || undefined, updatedAt: now });
+      taskMessengerRouteByTaskId.set(normalizedTaskId, {
+        ...parsed,
+        sessionKey: sessionKey || undefined,
+        updatedAt: now,
+      });
       pruneTaskMessengerRouteCache(now);
       return { ...parsed, ...(sessionKey ? { sessionKey } : {}) };
     }
