@@ -132,7 +132,8 @@ export default function ChatMessageList({
             const isDirective = msg.message_type === "directive";
             const isSystem = msg.sender_type === "system" || msg.message_type === "announcement" || isDirective;
 
-            const senderAgent = msg.sender_agent ?? agents.find((agent) => agent.id === msg.sender_id) ?? buildFallbackSenderAgent(msg);
+            const senderAgent =
+              msg.sender_agent ?? agents.find((agent) => agent.id === msg.sender_id) ?? buildFallbackSenderAgent(msg);
             const senderNameFromPayload = normalizeMessageSenderName(msg);
             const senderName = isCeo
               ? tr("CEO", "CEO")

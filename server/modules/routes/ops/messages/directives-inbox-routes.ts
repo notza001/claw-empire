@@ -352,7 +352,11 @@ export function registerDirectiveAndInboxRoutes(
 
     if (shouldDelegate) {
       // 4. Auto-delegate to planning team leader
-      const planningLeader = findDirectiveLeader("planning", explicitProjectId ?? null, getDirectiveLeaderScope("planning"));
+      const planningLeader = findDirectiveLeader(
+        "planning",
+        explicitProjectId ?? null,
+        getDirectiveLeaderScope("planning"),
+      );
       if (planningLeader) {
         const delegationDelay = 3000 + Math.random() * 2000;
         setTimeout(() => {
@@ -771,7 +775,11 @@ export function registerDirectiveAndInboxRoutes(
 
     if (shouldDelegateDirective) {
       // Auto-delegate to planning team leader
-      const planningLeader = findDirectiveLeader("planning", inboxProjectId ?? null, getDirectiveLeaderScope("planning"));
+      const planningLeader = findDirectiveLeader(
+        "planning",
+        inboxProjectId ?? null,
+        getDirectiveLeaderScope("planning"),
+      );
       if (planningLeader) {
         const delegationDelay = 3000 + Math.random() * 2000;
         setTimeout(() => {

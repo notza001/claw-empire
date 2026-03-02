@@ -85,4 +85,3 @@ describe("worktree lifecycle branch collision handling", () => {
     runGit(repo, ["branch", "-D", baseBranch]);
   });
 });
-

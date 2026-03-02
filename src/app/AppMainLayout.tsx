@@ -33,11 +33,7 @@ import {
   resolveOfficePackSeedProvider,
 } from "./office-workflow-pack";
 import { resolvePackAgentViews, resolvePackDepartmentsForDisplay } from "./office-pack-display";
-import {
-  applyOfficePackToTaskInput,
-  filterTasksByOfficePack,
-  type TaskCreateInput,
-} from "./task-workflow-pack";
+import { applyOfficePackToTaskInput, filterTasksByOfficePack, type TaskCreateInput } from "./task-workflow-pack";
 
 interface AppMainLayoutLabels {
   uiLanguage: string;
@@ -208,7 +204,7 @@ export default function AppMainLayout({
       : labels.uiLanguage === "ja"
         ? "オフィスパック"
         : labels.uiLanguage === "zh"
-        ? "办公室包"
+          ? "办公室包"
           : "Office Pack";
   const officePackBootstrappingMessage = useMemo(() => {
     if (!officePackBootstrappingLabel) return null;
@@ -229,7 +225,8 @@ export default function AppMainLayout({
     [officePackKey, uiLanguage, departments, agents, customRoomThemes],
   );
 
-  const activePackProfile = officePackKey === "development" ? null : settings.officePackProfiles?.[officePackKey] ?? null;
+  const activePackProfile =
+    officePackKey === "development" ? null : (settings.officePackProfiles?.[officePackKey] ?? null);
 
   const seededPackAgents = useMemo(() => {
     if (officePackKey === "development") return [] as Agent[];
@@ -269,9 +266,10 @@ export default function AppMainLayout({
   }, [activePackProfile?.agents, generatedOfficePresentation.departments, officePackKey, uiLanguage]);
 
   const packProfileDepartments =
-    officePackKey === "development" ? null : activePackProfile?.departments ?? generatedOfficePresentation.departments;
-  const packProfileAgents =
-    officePackKey === "development" ? null : activePackProfile?.agents ?? seededPackAgents;
+    officePackKey === "development"
+      ? null
+      : (activePackProfile?.departments ?? generatedOfficePresentation.departments);
+  const packProfileAgents = officePackKey === "development" ? null : (activePackProfile?.agents ?? seededPackAgents);
 
   const displayDepartments = useMemo(
     () =>
@@ -305,14 +303,14 @@ export default function AppMainLayout({
       ? departments
       : isHydratedOfficePack
         ? displayDepartments
-        : activePackProfile?.departments ?? generatedOfficePresentation.departments;
+        : (activePackProfile?.departments ?? generatedOfficePresentation.departments);
 
   const managerAgents =
     officePackKey === "development"
       ? agents
       : isHydratedOfficePack
         ? officeScopedAgents
-        : activePackProfile?.agents ?? seededPackAgents;
+        : (activePackProfile?.agents ?? seededPackAgents);
 
   const officePresentation = useMemo(() => {
     if (officePackKey === "development") return generatedOfficePresentation;

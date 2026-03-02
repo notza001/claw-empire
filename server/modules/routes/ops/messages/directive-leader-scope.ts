@@ -1,6 +1,10 @@
 import type { DatabaseSync } from "node:sqlite";
 import { resolveConstrainedAgentScopeForTask } from "../../core/tasks/execution-run-auto-assign.ts";
-import { DEFAULT_WORKFLOW_PACK_KEY, isWorkflowPackKey, type WorkflowPackKey } from "../../../workflow/packs/definitions.ts";
+import {
+  DEFAULT_WORKFLOW_PACK_KEY,
+  isWorkflowPackKey,
+  type WorkflowPackKey,
+} from "../../../workflow/packs/definitions.ts";
 import { resolveWorkflowPackKeyForTask } from "../../../workflow/packs/task-pack-resolver.ts";
 
 type DbLike = Pick<DatabaseSync, "prepare">;
@@ -74,9 +78,7 @@ export function resolveDirectiveLeaderCandidateScope(
       `,
       )
       .all(...scopedCandidateIds, normalizedDeptId) as Array<{ id?: unknown }>;
-    const deptScopedIds = deptRows
-      .map((row) => normalizeText(row.id))
-      .filter((id): id is string => id.length > 0);
+    const deptScopedIds = deptRows.map((row) => normalizeText(row.id)).filter((id): id is string => id.length > 0);
     // If no candidate exists for the requested department, keep the broader scope as fallback.
     return deptScopedIds.length > 0 ? deptScopedIds : scopedCandidateIds;
   } catch {

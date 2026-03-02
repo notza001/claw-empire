@@ -33,7 +33,11 @@ interface SubtaskDelegationDeps {
     taskId?: string | null,
   ) => void;
   appendTaskLog: (taskId: string, source: string, message: string) => void;
-  finishReview: (taskId: string, taskTitle: string, options?: { bypassProjectDecisionGate?: boolean; trigger?: string }) => void;
+  finishReview: (
+    taskId: string,
+    taskTitle: string,
+    options?: { bypassProjectDecisionGate?: boolean; trigger?: string },
+  ) => void;
   findTeamLeader: (deptId: string | null, candidateAgentIds?: string[] | null) => AgentRow | null;
   findBestSubordinate: (deptId: string, excludeId: string, candidateAgentIds?: string[] | null) => AgentRow | null;
   nowMs: () => number;
@@ -235,7 +239,11 @@ export function initializeSubtaskDelegation(deps: SubtaskDelegationDeps) {
         includeRender: Boolean(previous?.includeRender || opts?.includeRender),
       });
       if (opts?.includeRender) {
-        appendTaskLog(taskId, "system", "Subtask delegation queued: includeRender request deferred until in-flight batch completes");
+        appendTaskLog(
+          taskId,
+          "system",
+          "Subtask delegation queued: includeRender request deferred until in-flight batch completes",
+        );
       }
       return;
     }
@@ -249,9 +257,7 @@ export function initializeSubtaskDelegation(deps: SubtaskDelegationDeps) {
     // VIDEO_FINAL_RENDER must wait for other subtasks — exclude from initial batch
     const eligible = opts?.includeRender
       ? foreignSubtasks
-      : foreignSubtasks.filter(
-          (s) => !String(s.title ?? "").includes("[VIDEO_FINAL_RENDER]"),
-        );
+      : foreignSubtasks.filter((s) => !String(s.title ?? "").includes("[VIDEO_FINAL_RENDER]"));
 
     if (eligible.length === 0) return;
 
@@ -293,15 +299,11 @@ export function initializeSubtaskDelegation(deps: SubtaskDelegationDeps) {
     notifyCeo(
       pickL(
         l(
-          [
-            `'${parentTask.title}' 의 외부 부서 서브태스크 ${eligible.length}건을 부서별 배치로 순차 위임합니다.`,
-          ],
+          [`'${parentTask.title}' 의 외부 부서 서브태스크 ${eligible.length}건을 부서별 배치로 순차 위임합니다.`],
           [
             `Delegating ${eligible.length} external-department subtasks for '${parentTask.title}' sequentially by department, one batched request at a time.`,
           ],
-          [
-            `'${parentTask.title}' の他部門サブタスク${eligible.length}件を、部門ごとにバッチ化して順次委任します。`,
-          ],
+          [`'${parentTask.title}' の他部門サブタスク${eligible.length}件を、部門ごとにバッチ化して順次委任します。`],
           [`将把'${parentTask.title}'的${eligible.length}个外部门 SubTask 按部门批量后顺序委派。`],
         ),
         lang,
@@ -506,10 +508,14 @@ export function initializeSubtaskDelegation(deps: SubtaskDelegationDeps) {
     );
     if (parentTask.status === "review") {
       const yolo = readYoloModeEnabled(db);
-      setTimeout(() => finishReview(parentTaskId, parentTask.title, {
-        bypassProjectDecisionGate: yolo,
-        trigger: "subtask_completion",
-      }), 1200);
+      setTimeout(
+        () =>
+          finishReview(parentTaskId, parentTask.title, {
+            bypassProjectDecisionGate: yolo,
+            trigger: "subtask_completion",
+          }),
+        1200,
+      );
     }
   }
 

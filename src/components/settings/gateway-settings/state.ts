@@ -88,7 +88,9 @@ export function normalizeChannelsConfig(config: MessengerChannelsConfig): Messen
   }, {} as MessengerChannelsConfig);
 }
 
-export function resolveChannelsConfig(raw: ChannelSettingsTabProps["form"]["messengerChannels"]): MessengerChannelsConfig {
+export function resolveChannelsConfig(
+  raw: ChannelSettingsTabProps["form"]["messengerChannels"],
+): MessengerChannelsConfig {
   const defaults = defaultChannelsConfig();
   return MESSENGER_CHANNELS.reduce((acc, channel) => {
     acc[channel] = {

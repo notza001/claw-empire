@@ -35,7 +35,9 @@ export function registerAgentCrudRoutes(ctx: RuntimeContext): void {
 
   function parseIncludeSeedParam(input: unknown): boolean {
     if (Array.isArray(input)) input = input[0];
-    const raw = String(input ?? "").trim().toLowerCase();
+    const raw = String(input ?? "")
+      .trim()
+      .toLowerCase();
     return raw === "1" || raw === "true" || raw === "yes";
   }
 
@@ -97,12 +99,10 @@ export function registerAgentCrudRoutes(ctx: RuntimeContext): void {
     }
 
     if (packKey !== DEFAULT_WORKFLOW_PACK_KEY) {
-      const prefixed = db
-        .prepare("SELECT id FROM agents WHERE id LIKE ?")
-        .all(`${packKey}-%`) as Array<{ id?: unknown }>;
-      return prefixed
-        .map((row) => normalizeText(row.id))
-        .filter((id): id is string => id.length > 0);
+      const prefixed = db.prepare("SELECT id FROM agents WHERE id LIKE ?").all(`${packKey}-%`) as Array<{
+        id?: unknown;
+      }>;
+      return prefixed.map((row) => normalizeText(row.id)).filter((id): id is string => id.length > 0);
     }
 
     const excludeIds = [...readNonDevelopmentProfileAgentIds()];
@@ -111,9 +111,7 @@ export function registerAgentCrudRoutes(ctx: RuntimeContext): void {
       const rows = db
         .prepare(`SELECT id FROM agents WHERE id NOT LIKE '%-seed-%' AND id NOT IN (${placeholders})`)
         .all(...(excludeIds as SQLInputValue[])) as Array<{ id?: unknown }>;
-      return rows
-        .map((row) => normalizeText(row.id))
-        .filter((id): id is string => id.length > 0);
+      return rows.map((row) => normalizeText(row.id)).filter((id): id is string => id.length > 0);
     }
 
     const rows = db.prepare("SELECT id FROM agents WHERE id NOT LIKE '%-seed-%'").all() as Array<{ id?: unknown }>;

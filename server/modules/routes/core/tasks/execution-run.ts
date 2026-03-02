@@ -144,7 +144,11 @@ export function registerTaskRunRoute(deps: TaskRunRouteDeps): void {
         department_id: task.department_id,
         project_id: task.project_id,
       });
-      if (Array.isArray(constrainedAgentIds) && constrainedAgentIds.length > 0 && !constrainedAgentIds.includes(agentId)) {
+      if (
+        Array.isArray(constrainedAgentIds) &&
+        constrainedAgentIds.length > 0 &&
+        !constrainedAgentIds.includes(agentId)
+      ) {
         appendTaskLog(
           id,
           "system",

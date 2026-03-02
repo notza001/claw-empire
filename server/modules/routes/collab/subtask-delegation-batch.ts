@@ -285,9 +285,9 @@ export function createSubtaskDelegationBatch(deps: BatchDeps) {
 
     const ackDelay = 1500 + Math.random() * 1000;
     setTimeout(() => {
-      const latestParent = db
-        .prepare("SELECT status FROM tasks WHERE id = ?")
-        .get(parentTask.id) as { status?: string } | undefined;
+      const latestParent = db.prepare("SELECT status FROM tasks WHERE id = ?").get(parentTask.id) as
+        | { status?: string }
+        | undefined;
       const parentStatus = String(latestParent?.status ?? "").trim();
       if (!latestParent || !["planned", "pending", "in_progress", "review"].includes(parentStatus)) {
         appendTaskLog(
@@ -447,235 +447,235 @@ export function createSubtaskDelegationBatch(deps: BatchDeps) {
       if (["claude", "codex", "gemini", "opencode", "copilot", "antigravity", "api"].includes(execProvider)) {
         let delegatedProcessStarted = false;
         try {
-        const projPath = resolveProjectPath({
-          project_id: parentTask.project_id,
-          project_path: parentTask.project_path,
-          description: parentTask.description,
-          title: parentTask.title,
-        });
-        const worktreePath = createWorktree(projPath, delegatedTaskId, execAgent.name);
-        if (!worktreePath) {
-          failDelegatedLaunch(
-            new Error(`worktree_required: isolated worktree creation failed for '${projPath}'`),
-            "worktree_required",
+          const projPath = resolveProjectPath({
+            project_id: parentTask.project_id,
+            project_path: parentTask.project_path,
+            description: parentTask.description,
+            title: parentTask.title,
+          });
+          const worktreePath = createWorktree(projPath, delegatedTaskId, execAgent.name);
+          if (!worktreePath) {
+            failDelegatedLaunch(
+              new Error(`worktree_required: isolated worktree creation failed for '${projPath}'`),
+              "worktree_required",
+            );
+            return;
+          }
+          const agentCwd = worktreePath;
+          appendTaskLog(
+            delegatedTaskId,
+            "system",
+            `Git worktree created: ${worktreePath} (branch: climpire/${delegatedTaskId.slice(0, 8)})`,
           );
-          return;
-        }
-        const agentCwd = worktreePath;
-        appendTaskLog(
-          delegatedTaskId,
-          "system",
-          `Git worktree created: ${worktreePath} (branch: climpire/${delegatedTaskId.slice(0, 8)})`,
-        );
-        const logFilePath = path.join(logsDir, `${delegatedTaskId}.log`);
-        ensureVideoPreprodRemotionBestPracticesSkill({
-          db: db as any,
-          nowMs,
-          workflowPackKey: parentTask.workflow_pack_key ?? null,
-          provider: execProvider,
-          taskId: delegatedTaskId,
-          appendTaskLog,
-        });
-        const spawnPrompt = buildSubtaskDelegationPrompt(parentTask, subtasks, execAgent, targetDeptId, targetDeptName);
-        const executionSession = ensureTaskExecutionSession(delegatedTaskId, execAgent.id, execProvider);
-        const worktreeNote = `\nNOTE: You are working in an isolated Git worktree branch (climpire/${delegatedTaskId.slice(0, 8)}). Commit your changes normally.`;
+          const logFilePath = path.join(logsDir, `${delegatedTaskId}.log`);
+          ensureVideoPreprodRemotionBestPracticesSkill({
+            db: db as any,
+            nowMs,
+            workflowPackKey: parentTask.workflow_pack_key ?? null,
+            provider: execProvider,
+            taskId: delegatedTaskId,
+            appendTaskLog,
+          });
+          const spawnPrompt = buildSubtaskDelegationPrompt(
+            parentTask,
+            subtasks,
+            execAgent,
+            targetDeptId,
+            targetDeptName,
+          );
+          const executionSession = ensureTaskExecutionSession(delegatedTaskId, execAgent.id, execProvider);
+          const worktreeNote = `\nNOTE: You are working in an isolated Git worktree branch (climpire/${delegatedTaskId.slice(0, 8)}). Commit your changes normally.`;
 
-        // Build sibling worktree reference block so agents can read prior departments' work
-        let siblingWorktreeBlock = "";
-        try {
-          const siblingRows = db
-            .prepare(
-              "SELECT s.title, s.target_department_id, s.delegated_task_id FROM subtasks s WHERE s.task_id = ? AND s.status = 'done' AND s.delegated_task_id IS NOT NULL AND s.delegated_task_id != ?",
-            )
-            .all(parentTask.id, delegatedTaskId) as Array<{
-            title: string;
-            target_department_id: string | null;
-            delegated_task_id: string;
-          }>;
-          const validSiblings: string[] = [];
-          for (const sib of siblingRows) {
-            const shortId = sib.delegated_task_id.slice(0, 8);
-            const wtPath = path.join(projPath, ".climpire-worktrees", shortId);
-            if (fs.existsSync(wtPath)) {
-              const deptLabel = sib.target_department_id
-                ? getDeptName(sib.target_department_id, parentTask.workflow_pack_key)
-                : "unknown";
-              validSiblings.push(`- [${deptLabel}] ${wtPath}`);
+          // Build sibling worktree reference block so agents can read prior departments' work
+          let siblingWorktreeBlock = "";
+          try {
+            const siblingRows = db
+              .prepare(
+                "SELECT s.title, s.target_department_id, s.delegated_task_id FROM subtasks s WHERE s.task_id = ? AND s.status = 'done' AND s.delegated_task_id IS NOT NULL AND s.delegated_task_id != ?",
+              )
+              .all(parentTask.id, delegatedTaskId) as Array<{
+              title: string;
+              target_department_id: string | null;
+              delegated_task_id: string;
+            }>;
+            const validSiblings: string[] = [];
+            for (const sib of siblingRows) {
+              const shortId = sib.delegated_task_id.slice(0, 8);
+              const wtPath = path.join(projPath, ".climpire-worktrees", shortId);
+              if (fs.existsSync(wtPath)) {
+                const deptLabel = sib.target_department_id
+                  ? getDeptName(sib.target_department_id, parentTask.workflow_pack_key)
+                  : "unknown";
+                validSiblings.push(`- [${deptLabel}] ${wtPath}`);
+              }
             }
+            if (validSiblings.length > 0) {
+              siblingWorktreeBlock = [
+                "",
+                "[Prior Department Deliverables]",
+                "The following directories contain completed work from other departments on this project.",
+                "You MUST read and reference these files to ensure consistency with prior deliverables.",
+                "These are READ-ONLY references — do NOT modify files in these paths.",
+                ...validSiblings,
+              ].join("\n");
+            }
+          } catch {
+            // best effort — do not block delegation on sibling lookup failure
           }
-          if (validSiblings.length > 0) {
-            siblingWorktreeBlock = [
-              "",
-              "[Prior Department Deliverables]",
-              "The following directories contain completed work from other departments on this project.",
-              "You MUST read and reference these files to ensure consistency with prior deliverables.",
-              "These are READ-ONLY references — do NOT modify files in these paths.",
-              ...validSiblings,
-            ].join("\n");
+
+          const sessionPrompt = [
+            `[Task Session] id=${executionSession.sessionId} owner=${executionSession.agentId} provider=${executionSession.provider}`,
+            "Task-scoped session: keep continuity only within this delegated task.",
+            spawnPrompt,
+            worktreeNote,
+            siblingWorktreeBlock,
+          ].join("\n");
+
+          if (execProvider === "claude") {
+            ensureClaudeMd(projPath, worktreePath);
           }
-        } catch {
-          // best effort — do not block delegation on sibling lookup failure
-        }
 
-        const sessionPrompt = [
-          `[Task Session] id=${executionSession.sessionId} owner=${executionSession.agentId} provider=${executionSession.provider}`,
-          "Task-scoped session: keep continuity only within this delegated task.",
-          spawnPrompt,
-          worktreeNote,
-          siblingWorktreeBlock,
-        ].join("\n");
+          appendTaskLog(delegatedTaskId, "system", `RUN start (agent=${execAgent.name}, provider=${execProvider})`);
 
-        if (execProvider === "claude") {
-          ensureClaudeMd(projPath, worktreePath);
-        }
-
-        appendTaskLog(delegatedTaskId, "system", `RUN start (agent=${execAgent.name}, provider=${execProvider})`);
-
-        const wrapCallbackForHttpProvider = () => {
-          const originalCallback = subtaskDelegationCallbacks.get(delegatedTaskId);
-          subtaskDelegationCallbacks.set(delegatedTaskId, () => {
-            // Finalize subtask statuses based on delegated task exit result
-            const finishedTask = db.prepare("SELECT status FROM tasks WHERE id = ?").get(delegatedTaskId) as
-              | { status: string }
-              | undefined;
-            if (!finishedTask || finishedTask.status === "cancelled" || finishedTask.status === "pending") {
+          const wrapCallbackForHttpProvider = () => {
+            const originalCallback = subtaskDelegationCallbacks.get(delegatedTaskId);
+            subtaskDelegationCallbacks.set(delegatedTaskId, () => {
+              // Finalize subtask statuses based on delegated task exit result
+              const finishedTask = db.prepare("SELECT status FROM tasks WHERE id = ?").get(delegatedTaskId) as
+                | { status: string }
+                | undefined;
+              if (!finishedTask || finishedTask.status === "cancelled" || finishedTask.status === "pending") {
+                delegatedTaskToSubtask.delete(delegatedTaskId);
+                appendTaskLog(
+                  delegatedTaskId,
+                  "system",
+                  `Delegated batch callback skipped (status=${finishedTask?.status ?? "missing"})`,
+                );
+                if (originalCallback) originalCallback();
+                return;
+              }
+              const succeeded = finishedTask?.status === "done" || finishedTask?.status === "review";
+              const doneAt = nowMs();
+              for (const sid of subtaskIds) {
+                if (succeeded) {
+                  db.prepare(
+                    "UPDATE subtasks SET status = 'done', completed_at = ?, blocked_reason = NULL WHERE id = ?",
+                  ).run(doneAt, sid);
+                } else {
+                  db.prepare("UPDATE subtasks SET status = 'blocked', blocked_reason = ? WHERE id = ?").run(
+                    "Delegated task failed",
+                    sid,
+                  );
+                }
+                broadcast("subtask_update", db.prepare("SELECT * FROM subtasks WHERE id = ?").get(sid));
+              }
               delegatedTaskToSubtask.delete(delegatedTaskId);
-              appendTaskLog(
-                delegatedTaskId,
-                "system",
-                `Delegated batch callback skipped (status=${finishedTask?.status ?? "missing"})`,
-              );
+              if (succeeded) {
+                const touchedParents = new Set<string>();
+                for (const sid of subtaskIds) {
+                  const sub = db.prepare("SELECT task_id FROM subtasks WHERE id = ?").get(sid) as
+                    | { task_id: string }
+                    | undefined;
+                  if (sub?.task_id) touchedParents.add(sub.task_id);
+                }
+                for (const pid of touchedParents) maybeNotifyAllSubtasksComplete(pid);
+              }
               if (originalCallback) originalCallback();
+            });
+          };
+
+          if (execProvider === "api") {
+            try {
+              wrapCallbackForHttpProvider();
+              const controller = new AbortController();
+              const fakePid = getNextHttpAgentPid();
+              launchApiProviderAgent(
+                delegatedTaskId,
+                execAgent.api_provider_id ?? null,
+                execAgent.api_model ?? null,
+                sessionPrompt,
+                agentCwd,
+                logFilePath,
+                controller,
+                fakePid,
+              );
+              delegatedProcessStarted = true;
+            } catch (error) {
+              failDelegatedLaunch(error, "api_provider_bootstrap");
               return;
             }
-            const succeeded = finishedTask?.status === "done" || finishedTask?.status === "review";
-            const doneAt = nowMs();
-            for (const sid of subtaskIds) {
-              if (succeeded) {
-                db.prepare(
-                  "UPDATE subtasks SET status = 'done', completed_at = ?, blocked_reason = NULL WHERE id = ?",
-                ).run(doneAt, sid);
-              } else {
-                db.prepare("UPDATE subtasks SET status = 'blocked', blocked_reason = ? WHERE id = ?").run(
-                  "Delegated task failed",
-                  sid,
-                );
-              }
-              broadcast("subtask_update", db.prepare("SELECT * FROM subtasks WHERE id = ?").get(sid));
+          } else if (execProvider === "copilot" || execProvider === "antigravity") {
+            try {
+              wrapCallbackForHttpProvider();
+              const controller = new AbortController();
+              const fakePid = getNextHttpAgentPid();
+              launchHttpAgent(
+                delegatedTaskId,
+                execProvider,
+                sessionPrompt,
+                agentCwd,
+                logFilePath,
+                controller,
+                fakePid,
+                execAgent.oauth_account_id ?? null,
+              );
+              delegatedProcessStarted = true;
+            } catch (error) {
+              failDelegatedLaunch(error, "http_provider_bootstrap");
+              return;
             }
-            delegatedTaskToSubtask.delete(delegatedTaskId);
-            if (succeeded) {
-              const touchedParents = new Set<string>();
-              for (const sid of subtaskIds) {
-                const sub = db.prepare("SELECT task_id FROM subtasks WHERE id = ?").get(sid) as
-                  | { task_id: string }
-                  | undefined;
-                if (sub?.task_id) touchedParents.add(sub.task_id);
-              }
-              for (const pid of touchedParents) maybeNotifyAllSubtasksComplete(pid);
+          } else {
+            const delegateModelConfig = getProviderModelConfig();
+            const delegateModel = execAgent.cli_model || delegateModelConfig[execProvider]?.model || undefined;
+            const delegateReasoningLevel =
+              execProvider === "codex"
+                ? execAgent.cli_reasoning_level || delegateModelConfig[execProvider]?.reasoningLevel || undefined
+                : delegateModelConfig[execProvider]?.reasoningLevel || undefined;
+            let child: {
+              on: (event: "close", listener: (code: number | null) => void) => void;
+            } | null = null;
+            try {
+              child = spawnCliAgent(
+                delegatedTaskId,
+                execProvider,
+                sessionPrompt,
+                agentCwd,
+                logFilePath,
+                delegateModel,
+                delegateReasoningLevel,
+              );
+            } catch (error) {
+              failDelegatedLaunch(error, "cli_spawn");
+              return;
             }
-            if (originalCallback) originalCallback();
-          });
-        };
-
-        if (execProvider === "api") {
-          try {
-            wrapCallbackForHttpProvider();
-            const controller = new AbortController();
-            const fakePid = getNextHttpAgentPid();
-            launchApiProviderAgent(
-              delegatedTaskId,
-              execAgent.api_provider_id ?? null,
-              execAgent.api_model ?? null,
-              sessionPrompt,
-              agentCwd,
-              logFilePath,
-              controller,
-              fakePid,
-            );
+            if (!child) {
+              failDelegatedLaunch("spawn returned no child process", "cli_spawn_empty");
+              return;
+            }
+            child.on("close", (code: number | null) => {
+              finalizeDelegatedSubtasks(delegatedTaskId, subtaskIds, code ?? 1);
+            });
             delegatedProcessStarted = true;
-          } catch (error) {
-            failDelegatedLaunch(error, "api_provider_bootstrap");
-            return;
           }
-        } else if (execProvider === "copilot" || execProvider === "antigravity") {
-          try {
-            wrapCallbackForHttpProvider();
-            const controller = new AbortController();
-            const fakePid = getNextHttpAgentPid();
-            launchHttpAgent(
-              delegatedTaskId,
-              execProvider,
-              sessionPrompt,
-              agentCwd,
-              logFilePath,
-              controller,
-              fakePid,
-              execAgent.oauth_account_id ?? null,
-            );
-            delegatedProcessStarted = true;
-          } catch (error) {
-            failDelegatedLaunch(error, "http_provider_bootstrap");
-            return;
-          }
-        } else {
-          const delegateModelConfig = getProviderModelConfig();
-          const delegateModel = execAgent.cli_model || delegateModelConfig[execProvider]?.model || undefined;
-          const delegateReasoningLevel =
-            execProvider === "codex"
-              ? execAgent.cli_reasoning_level || delegateModelConfig[execProvider]?.reasoningLevel || undefined
-              : delegateModelConfig[execProvider]?.reasoningLevel || undefined;
-          let child:
-            | {
-                on: (event: "close", listener: (code: number | null) => void) => void;
-              }
-            | null = null;
-          try {
-            child = spawnCliAgent(
-              delegatedTaskId,
-              execProvider,
-              sessionPrompt,
-              agentCwd,
-              logFilePath,
-              delegateModel,
-              delegateReasoningLevel,
-            );
-          } catch (error) {
-            failDelegatedLaunch(error, "cli_spawn");
-            return;
-          }
-          if (!child) {
-            failDelegatedLaunch("spawn returned no child process", "cli_spawn_empty");
-            return;
-          }
-          child.on("close", (code: number | null) => {
-            finalizeDelegatedSubtasks(delegatedTaskId, subtaskIds, code ?? 1);
-          });
-          delegatedProcessStarted = true;
-        }
 
-        const worktreeCeoNote = buildWorktreeCeoNote({ l, pickL }, lang, delegatedTaskId, Boolean(worktreePath));
-        notifyCeo(
-          buildExecutionStartNotice({
-            l,
-            pickL,
-            lang,
-            targetDeptName,
-            execName,
-            itemCount: subtasks.length,
-            worktreeCeoNote,
-          }),
-          delegatedTaskId,
-        );
-        startProgressTimer(delegatedTaskId, delegatedTitle, targetDeptId);
+          const worktreeCeoNote = buildWorktreeCeoNote({ l, pickL }, lang, delegatedTaskId, Boolean(worktreePath));
+          notifyCeo(
+            buildExecutionStartNotice({
+              l,
+              pickL,
+              lang,
+              targetDeptName,
+              execName,
+              itemCount: subtasks.length,
+              worktreeCeoNote,
+            }),
+            delegatedTaskId,
+          );
+          startProgressTimer(delegatedTaskId, delegatedTitle, targetDeptId);
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           if (delegatedProcessStarted) {
-            appendTaskLog(
-              delegatedTaskId,
-              "system",
-              `Delegated post-launch warning: ${message}`,
-            );
+            appendTaskLog(delegatedTaskId, "system", `Delegated post-launch warning: ${message}`);
           } else {
             failDelegatedLaunch(error, "delegated_bootstrap");
           }

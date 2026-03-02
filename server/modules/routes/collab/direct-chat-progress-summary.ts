@@ -2,12 +2,7 @@ import { isMessengerChannel } from "../../../messenger/channels.ts";
 import type { Lang } from "../../../types/lang.ts";
 import type { DelegationOptions } from "./project-resolution.ts";
 import { resolveProjectBindingFromText } from "./direct-chat-project-binding.ts";
-import type {
-  AgentRow,
-  DirectChatDeps,
-  ProjectProgressTarget,
-  ProjectProgressTaskRow,
-} from "./direct-chat-types.ts";
+import type { AgentRow, DirectChatDeps, ProjectProgressTarget, ProjectProgressTaskRow } from "./direct-chat-types.ts";
 
 type BuildProjectProgressDeps = Pick<
   DirectChatDeps,
@@ -324,7 +319,10 @@ export function buildProjectProgressSummary(
 
   const rows = loadProjectProgressTasks(deps, target);
   const projectName =
-    target.projectName || target.projectPath || target.projectId || deps.pickL(deps.l(["(미지정)"], ["(unknown)"]), lang);
+    target.projectName ||
+    target.projectPath ||
+    target.projectId ||
+    deps.pickL(deps.l(["(미지정)"], ["(unknown)"]), lang);
   if (rows.length === 0) {
     return {
       lang,

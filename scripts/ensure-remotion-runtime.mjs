@@ -57,4 +57,3 @@ console.error("[Remotion bootstrap] failed: could not ensure Remotion browser ru
 if (ensureLocal.output) console.error(ensureLocal.output);
 if (ensureFallback.output) console.error(ensureFallback.output);
 process.exit(1);
-

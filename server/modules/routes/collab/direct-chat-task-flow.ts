@@ -118,7 +118,9 @@ export function createDirectTaskFlow(deps: TaskFlowDeps) {
       },
     });
     if (selectedProject.id) {
-      deps.db.prepare("UPDATE projects SET last_used_at = ?, updated_at = ? WHERE id = ?").run(t, t, selectedProject.id);
+      deps.db
+        .prepare("UPDATE projects SET last_used_at = ?, updated_at = ? WHERE id = ?")
+        .run(t, t, selectedProject.id);
     }
 
     deps.db.prepare("UPDATE agents SET current_task_id = ? WHERE id = ?").run(taskId, agent.id);

@@ -140,11 +140,9 @@ describe("run complete handler - video preprod review transition", () => {
         expect.stringContaining("Video sequencing notice: documentation/collaboration still in progress"),
       );
       expect(deps.notifyTaskStatus).toHaveBeenCalledWith(taskId, "메인 영상 제작", "review", "ko");
-      expect(
-        deps.notifyTaskStatus.mock.calls.some(
-          (call: any[]) => call[0] === taskId && call[2] === "pending",
-        ),
-      ).toBe(false);
+      expect(deps.notifyTaskStatus.mock.calls.some((call: any[]) => call[0] === taskId && call[2] === "pending")).toBe(
+        false,
+      );
     } finally {
       db.close();
     }
@@ -199,13 +197,7 @@ describe("run complete handler - video preprod review transition", () => {
           )
           VALUES (?, ?, ?, 'in_progress', 'video_preprod', 'parent-task', ?, 'dev', 'project-1', ?, 1)
         `,
-      ).run(
-        taskId,
-        "[VIDEO_FINAL_RENDER] 최종 영상 렌더링",
-        "최종 렌더링",
-        "video-preprod-seed-2",
-        "/tmp/project",
-      );
+      ).run(taskId, "[VIDEO_FINAL_RENDER] 최종 영상 렌더링", "최종 렌더링", "video-preprod-seed-2", "/tmp/project");
       db.prepare(
         `
           INSERT INTO agents (id, name, name_ko, status, current_task_id, department_id, stats_tasks_done, stats_xp)
@@ -228,8 +220,8 @@ describe("run complete handler - video preprod review transition", () => {
         expect.stringContaining("Video render engine gate failed"),
       );
       expect(
-        deps.appendTaskLog.mock.calls.some(
-          (call: any[]) => String(call[2] ?? "").includes("RUN failed (exit code: 86)"),
+        deps.appendTaskLog.mock.calls.some((call: any[]) =>
+          String(call[2] ?? "").includes("RUN failed (exit code: 86)"),
         ),
       ).toBe(true);
     } finally {
@@ -256,13 +248,7 @@ describe("run complete handler - video preprod review transition", () => {
           )
           VALUES (?, ?, ?, 'in_progress', 'video_preprod', 'parent-task', ?, 'dev', 'project-1', ?, 1)
         `,
-      ).run(
-        taskId,
-        "[VIDEO_FINAL_RENDER] 최종 영상 렌더링",
-        "최종 렌더링",
-        "video-preprod-seed-2",
-        projectPath,
-      );
+      ).run(taskId, "[VIDEO_FINAL_RENDER] 최종 영상 렌더링", "최종 렌더링", "video-preprod-seed-2", projectPath);
       db.prepare(
         `
           INSERT INTO agents (id, name, name_ko, status, current_task_id, department_id, stats_tasks_done, stats_xp)
@@ -329,13 +315,7 @@ describe("run complete handler - video preprod review transition", () => {
           )
           VALUES (?, ?, ?, 'in_progress', 'video_preprod', 'parent-task', ?, 'dev', 'project-1', ?, 1)
         `,
-      ).run(
-        taskId,
-        "[VIDEO_FINAL_RENDER] 최종 영상 렌더링",
-        "최종 렌더링",
-        "video-preprod-seed-2",
-        projectPath,
-      );
+      ).run(taskId, "[VIDEO_FINAL_RENDER] 최종 영상 렌더링", "최종 렌더링", "video-preprod-seed-2", projectPath);
       db.prepare(
         `
           INSERT INTO agents (id, name, name_ko, status, current_task_id, department_id, stats_tasks_done, stats_xp)
@@ -366,7 +346,9 @@ describe("run complete handler - video preprod review transition", () => {
         ),
       ).toBe(true);
       expect(
-        deps.appendTaskLog.mock.calls.some((call: any[]) => String(call[2] ?? "").includes("RUN completed (exit code: 0)")),
+        deps.appendTaskLog.mock.calls.some((call: any[]) =>
+          String(call[2] ?? "").includes("RUN completed (exit code: 0)"),
+        ),
       ).toBe(true);
     } finally {
       try {

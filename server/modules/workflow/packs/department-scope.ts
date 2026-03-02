@@ -1,9 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import {
-  DEFAULT_WORKFLOW_PACK_KEY,
-  isWorkflowPackKey,
-  type WorkflowPackKey,
-} from "./definitions.ts";
+import { DEFAULT_WORKFLOW_PACK_KEY, isWorkflowPackKey, type WorkflowPackKey } from "./definitions.ts";
 
 type DbLike = Pick<DatabaseSync, "prepare">;
 
@@ -106,7 +102,11 @@ function mapBaseDepartmentRow(row: Record<string, unknown> | undefined): Departm
   };
 }
 
-export function getDepartmentForPack(db: DbLike, packKeyInput: unknown, departmentIdInput: unknown): DepartmentScopedRow | null {
+export function getDepartmentForPack(
+  db: DbLike,
+  packKeyInput: unknown,
+  departmentIdInput: unknown,
+): DepartmentScopedRow | null {
   const departmentId = normalizeText(departmentIdInput);
   if (!departmentId) return null;
   const packKey = normalizeWorkflowPackKeyInput(packKeyInput);
@@ -189,7 +189,11 @@ export function listDepartmentsForPack(db: DbLike, packKeyInput: unknown): Depar
   }
 }
 
-export function getDepartmentPromptForPack(db: DbLike, packKeyInput: unknown, departmentIdInput: unknown): string | null {
+export function getDepartmentPromptForPack(
+  db: DbLike,
+  packKeyInput: unknown,
+  departmentIdInput: unknown,
+): string | null {
   return getDepartmentForPack(db, packKeyInput, departmentIdInput)?.prompt ?? null;
 }
 
@@ -201,4 +205,3 @@ export function getDepartmentSortOrderForPack(
   const row = getDepartmentForPack(db, packKeyInput, departmentIdInput);
   return row ? row.sort_order : null;
 }
-

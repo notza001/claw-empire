@@ -8,9 +8,7 @@ function normalizeText(value: unknown): string {
 export function buildMessengerTokenKey(channel: MessengerChannel, token: unknown): string {
   const normalized = normalizeText(token);
   if (!normalized) return "";
-  const digest = createHash("sha256")
-    .update(`${channel}:${normalized}`)
-    .digest("hex");
+  const digest = createHash("sha256").update(`${channel}:${normalized}`).digest("hex");
   return digest.slice(0, 16);
 }
 
@@ -19,4 +17,3 @@ export function buildMessengerSourceWithTokenHint(channel: MessengerChannel, tok
   if (!normalizedKey) return channel;
   return `${channel}#${normalizedKey}`;
 }
-

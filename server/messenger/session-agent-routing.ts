@@ -118,7 +118,12 @@ function normalizeTargetId(channel: MessengerChannel, value: unknown): string {
   return stripKnownPrefix(channel, normalized);
 }
 
-function resolveSessionId(session: PersistedSession, channel: MessengerChannel, index: number, fallbackSeed: string): string {
+function resolveSessionId(
+  session: PersistedSession,
+  channel: MessengerChannel,
+  index: number,
+  fallbackSeed: string,
+): string {
   const explicit = normalizeText(session.id);
   if (explicit) return explicit;
   const byIndex = `${channel}-${index + 1}`;

@@ -1,9 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import {
-  DEFAULT_WORKFLOW_PACK_KEY,
-  WORKFLOW_PACK_KEYS,
-  isWorkflowPackKey,
-} from "../../workflow/packs/definitions.ts";
+import { DEFAULT_WORKFLOW_PACK_KEY, WORKFLOW_PACK_KEYS, isWorkflowPackKey } from "../../workflow/packs/definitions.ts";
 
 type DbLike = Pick<DatabaseSync, "exec" | "prepare">;
 

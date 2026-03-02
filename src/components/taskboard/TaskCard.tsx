@@ -171,14 +171,12 @@ export default function TaskCard({
           placeholder={
             assignedAgent || !assignedLabel
               ? undefined
-              : t(
-                  {
-                    ko: `배정됨(숨김): ${assignedLabel}`,
-                    en: `Assigned (hidden): ${assignedLabel}`,
-                    ja: `割り当て済み(非表示): ${assignedLabel}`,
-                    zh: `已分配（隐藏）: ${assignedLabel}`,
-                  },
-                )
+              : t({
+                  ko: `배정됨(숨김): ${assignedLabel}`,
+                  en: `Assigned (hidden): ${assignedLabel}`,
+                  ja: `割り当て済み(非表示): ${assignedLabel}`,
+                  zh: `已分配（隐藏）: ${assignedLabel}`,
+                })
           }
           onChange={(agentId) => {
             setAgentWarning(false);

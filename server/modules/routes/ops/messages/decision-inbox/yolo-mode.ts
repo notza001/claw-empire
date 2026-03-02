@@ -24,7 +24,9 @@ const RETRYABLE_ERROR_MAX_ATTEMPTS_PER_DECISION = 6;
 function normalizeBooleanLike(value: unknown): boolean | null {
   if (typeof value === "boolean") return value;
   if (typeof value === "number") return value !== 0;
-  const text = String(value ?? "").trim().toLowerCase();
+  const text = String(value ?? "")
+    .trim()
+    .toLowerCase();
   if (!text) return null;
   if (["true", "1", "yes", "on", "enable", "enabled"].includes(text)) return true;
   if (["false", "0", "no", "off", "disable", "disabled"].includes(text)) return false;

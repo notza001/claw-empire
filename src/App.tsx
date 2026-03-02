@@ -362,7 +362,8 @@ export default function App() {
   });
 
   const activePackKey = normalizeOfficeWorkflowPack(settings.officeWorkflowPack ?? "development");
-  const activePackProfile = activePackKey === "development" ? null : settings.officePackProfiles?.[activePackKey] ?? null;
+  const activePackProfile =
+    activePackKey === "development" ? null : (settings.officePackProfiles?.[activePackKey] ?? null);
   const overlayDepartments = useMemo(
     () =>
       resolvePackDepartmentsForDisplay({

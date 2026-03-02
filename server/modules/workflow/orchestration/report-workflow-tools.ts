@@ -258,7 +258,10 @@ export function createReportWorkflowTools(deps: CreateReportWorkflowToolsDeps) {
     const htmlWorkspaceHint =
       htmlSourceDirPath ||
       (htmlSourceEntryPath ? path.dirname(htmlSourceEntryPath) : "") ||
-      stampSource.replace(/-report-deck\.pptx$/i, "-slides/").replace(/-report\.md$/i, "-slides/").replace(/\.pptx$/i, "-slides/");
+      stampSource
+        .replace(/-report-deck\.pptx$/i, "-slides/")
+        .replace(/-report\.md$/i, "-slides/")
+        .replace(/\.pptx$/i, "-slides/");
     const designHandoffPath = htmlWorkspaceHint.replace(/\/?$/, "").replace(/-slides$/i, "-design-handoff.md");
 
     const childTaskId = randomUUID();

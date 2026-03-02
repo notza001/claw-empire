@@ -314,7 +314,9 @@ export function handleProjectReviewDecisionReply(input: ProjectReviewReplyInput)
         trigger: "decision_inbox",
       });
 
-      const afterTask = db.prepare("SELECT status FROM tasks WHERE id = ?").get(task.id) as { status?: string } | undefined;
+      const afterTask = db.prepare("SELECT status FROM tasks WHERE id = ?").get(task.id) as
+        | { status?: string }
+        | undefined;
       if (afterTask?.status !== "review") {
         startedTaskIds.push(task.id);
         continue;

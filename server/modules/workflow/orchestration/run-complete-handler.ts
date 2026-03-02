@@ -121,9 +121,7 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
         workflow_pack_key: task.workflow_pack_key,
       });
       const candidateRelativePaths = resolveVideoArtifactRelativeCandidates(videoArtifactSpec);
-      const wtInfo = taskWorktrees.get(taskId) as
-        | { worktreePath?: string; projectPath?: string }
-        | undefined;
+      const wtInfo = taskWorktrees.get(taskId) as { worktreePath?: string; projectPath?: string } | undefined;
       const outputRoot = task.project_path || wtInfo?.projectPath || process.cwd();
       const projectCandidates = candidateRelativePaths.map((relative) => path.join(outputRoot, relative));
 
@@ -159,7 +157,11 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
             const size = fs.statSync(destVideo).size;
             if (size > 0) {
               videoArtifactReady = true;
-              appendTaskLog(taskId, "system", `Video artifact synchronized: ${destVideo} (${size} bytes, source=${sourceVideo})`);
+              appendTaskLog(
+                taskId,
+                "system",
+                `Video artifact synchronized: ${destVideo} (${size} bytes, source=${sourceVideo})`,
+              );
             } else {
               appendTaskLog(taskId, "system", `Video artifact sync failed: rendered file is empty (${destVideo})`);
             }
@@ -168,7 +170,11 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
             appendTaskLog(taskId, "system", `Video artifact sync failed: ${msg}`);
           }
         } else {
-          appendTaskLog(taskId, "system", `Video artifact not found in worktree (checked: ${worktreeCandidates.join(", ")})`);
+          appendTaskLog(
+            taskId,
+            "system",
+            `Video artifact not found in worktree (checked: ${worktreeCandidates.join(", ")})`,
+          );
         }
       }
 
@@ -179,7 +185,11 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
             const size = fs.statSync(projectVideo).size;
             if (size > 0) {
               videoArtifactReady = true;
-              appendTaskLog(taskId, "system", `Video artifact verified at project path: ${projectVideo} (${size} bytes)`);
+              appendTaskLog(
+                taskId,
+                "system",
+                `Video artifact verified at project path: ${projectVideo} (${size} bytes)`,
+              );
               break;
             }
           } catch (err: unknown) {
@@ -194,7 +204,11 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
         const discovered = discoverVideoArtifact(outputRoot);
         if (discovered) {
           videoArtifactReady = true;
-          appendTaskLog(taskId, "system", `Video artifact discovered via directory scan at project root: ${discovered}`);
+          appendTaskLog(
+            taskId,
+            "system",
+            `Video artifact discovered via directory scan at project root: ${discovered}`,
+          );
         }
       }
 
@@ -222,10 +236,7 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
         );
       }
     }
-    if (
-      finalExitCode === 0 &&
-      isVideoFinalRenderTask
-    ) {
+    if (finalExitCode === 0 && isVideoFinalRenderTask) {
       const remotionGate = evaluateRemotionOnlyGateFromLogFiles({ logsDir, taskIds: [taskId] });
       if (!remotionGate.passed) {
         finalExitCode = 86;
@@ -253,7 +264,9 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
     // Auto-complete own-department subtasks on CLI success; foreign ones get delegated
     if (finalExitCode === 0) {
       const pendingSubtasks = db
-        .prepare("SELECT id, target_department_id FROM subtasks WHERE task_id = ? AND status NOT IN ('done', 'cancelled')")
+        .prepare(
+          "SELECT id, target_department_id FROM subtasks WHERE task_id = ? AND status NOT IN ('done', 'cancelled')",
+        )
         .all(taskId) as Array<{ id: string; target_department_id: string | null }>;
       if (pendingSubtasks.length > 0) {
         const now = nowMs();
@@ -359,9 +372,7 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
                     [
                       `'${task.title}' の最終レンダー成果物が未確認のため失敗処理しました。Remotion で出力を生成後に再実行してください。`,
                     ],
-                    [
-                      `'${task.title}' 最终渲染产物缺失/为空，已判定本次执行失败。请用 Remotion 重新生成后再执行。`,
-                    ],
+                    [`'${task.title}' 最终渲染产物缺失/为空，已判定本次执行失败。请用 Remotion 重新生成后再执行。`],
                   ),
                   resolveLang(task.description ?? task.title),
                 ),
@@ -701,7 +712,9 @@ export function createRunCompleteHandler(deps: CreateRunCompleteHandlerDeps) {
                     [
                       `CEO、'${task.title}' の処理中に問題が発生しました (終了コード: ${finalExitCode})。担当再割り当てまたはタスク内容を修正して再試行してください。`,
                     ],
-                    [`CEO，'${task.title}' 执行时发生问题（退出码：${finalExitCode}）。请重新分配代理或修改任务后重试。`],
+                    [
+                      `CEO，'${task.title}' 执行时发生问题（退出码：${finalExitCode}）。请重新分配代理或修改任务后重试。`,
+                    ],
                   ),
                   failLang,
                 );

@@ -85,9 +85,7 @@ export function resolveVideoArtifactSpecForTask(
               LIMIT 1
             `,
           )
-          .get(workflowPackKey, departmentId) as
-          | { name?: string | null; name_ko?: string | null }
-          | undefined;
+          .get(workflowPackKey, departmentId) as { name?: string | null; name_ko?: string | null } | undefined;
       }
       if (!departmentNameRow) {
         departmentNameRow = db.prepare("SELECT name, name_ko FROM departments WHERE id = ?").get(departmentId) as

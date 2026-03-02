@@ -149,9 +149,7 @@ export type EnsureRemotionSkillResult =
   | { state: "installed"; command: string }
   | { state: "failed"; error: string };
 
-export function ensureVideoPreprodRemotionBestPracticesSkill(
-  args: EnsureRemotionSkillArgs,
-): EnsureRemotionSkillResult {
+export function ensureVideoPreprodRemotionBestPracticesSkill(args: EnsureRemotionSkillArgs): EnsureRemotionSkillResult {
   const { db, nowMs, workflowPackKey, provider, taskId, appendTaskLog } = args;
   const log = (kind: string, message: string) => {
     if (!taskId || !appendTaskLog) return;
@@ -222,4 +220,3 @@ export function ensureVideoPreprodRemotionBestPracticesSkill(
   );
   return { state: "failed", error: lastError || "unknown_install_error" };
 }
-

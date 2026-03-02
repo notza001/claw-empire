@@ -2,7 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { OAuthStatus } from "../api";
 import * as api from "../api";
 import { localeName, useI18n } from "../i18n";
-import type { Agent, CliModelInfo, Department, ReasoningLevelOption, SubAgent, SubTask, Task, WorkflowPackKey } from "../types";
+import type {
+  Agent,
+  CliModelInfo,
+  Department,
+  ReasoningLevelOption,
+  SubAgent,
+  SubTask,
+  Task,
+  WorkflowPackKey,
+} from "../types";
 import AgentAvatar from "./AgentAvatar";
 import AgentDetailTabContent from "./agent-detail/AgentDetailTabContent";
 import { CLI_LABELS, oauthAccountLabel, roleLabel, STATUS_CONFIG, statusLabel } from "./agent-detail/constants";
@@ -286,13 +295,20 @@ export default function AgentDetail({
         });
         onAgentUpdated?.();
       } catch (error) {
-        if (nextChecked && api.isApiRequestError(error) && error.status === 409 && error.code === "planning_leader_exists") {
+        if (
+          nextChecked &&
+          api.isApiRequestError(error) &&
+          error.status === 409 &&
+          error.code === "planning_leader_exists"
+        ) {
           const details = (error.details ?? {}) as {
             existing_leader?: { name?: string | null; name_ko?: string | null };
             pack_key?: WorkflowPackKey | null;
           };
           const existingLeaderName = String(
-            details.existing_leader?.name_ko || details.existing_leader?.name || t({ ko: "기존 리더", en: "current leader" }),
+            details.existing_leader?.name_ko ||
+              details.existing_leader?.name ||
+              t({ ko: "기존 리더", en: "current leader" }),
           ).trim();
           const packKey = details.pack_key ?? activeOfficeWorkflowPack;
           const packLabel = resolvePackLabel(packKey);
@@ -325,7 +341,16 @@ export default function AgentDetail({
         setSavingPlanningLead(false);
       }
     },
-    [activeOfficeWorkflowPack, agent.id, agent.role, actsAsPlanningLead, onAgentUpdated, resolvePackLabel, savingPlanningLead, t],
+    [
+      activeOfficeWorkflowPack,
+      agent.id,
+      agent.role,
+      actsAsPlanningLead,
+      onAgentUpdated,
+      resolvePackLabel,
+      savingPlanningLead,
+      t,
+    ],
   );
 
   return (
@@ -388,7 +413,12 @@ export default function AgentDetail({
                     className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-blue-500/50 disabled:opacity-60"
                   />
                   <span>
-                    {t({ ko: "Lead (기획 리더)", en: "Lead (Planning lead)", ja: "Lead（企画リード）", zh: "Lead（企划负责人）" })}
+                    {t({
+                      ko: "Lead (기획 리더)",
+                      en: "Lead (Planning lead)",
+                      ja: "Lead（企画リード）",
+                      zh: "Lead（企划负责人）",
+                    })}
                   </span>
                   {savingPlanningLead && (
                     <span className="text-[10px] text-slate-400">

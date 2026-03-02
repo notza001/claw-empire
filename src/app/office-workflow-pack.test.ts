@@ -124,15 +124,15 @@ describe("resolveOfficePackSeedProvider", () => {
   });
 
   it("개발/디자인은 claude, 인프라보안/운영/QA는 codex를 사용한다", () => {
-    expect(resolveOfficePackSeedProvider({ packKey: "report", departmentId: "dev", role: "senior", seedIndex: 2 })).toBe(
-      "claude",
-    );
+    expect(
+      resolveOfficePackSeedProvider({ packKey: "report", departmentId: "dev", role: "senior", seedIndex: 2 }),
+    ).toBe("claude");
     expect(
       resolveOfficePackSeedProvider({ packKey: "report", departmentId: "design", role: "senior", seedIndex: 3 }),
     ).toBe("claude");
-    expect(resolveOfficePackSeedProvider({ packKey: "report", departmentId: "devsecops", role: "senior", seedIndex: 4 })).toBe(
-      "codex",
-    );
+    expect(
+      resolveOfficePackSeedProvider({ packKey: "report", departmentId: "devsecops", role: "senior", seedIndex: 4 }),
+    ).toBe("codex");
     expect(
       resolveOfficePackSeedProvider({ packKey: "report", departmentId: "operations", role: "senior", seedIndex: 5 }),
     ).toBe("codex");

@@ -162,9 +162,7 @@ describe("hydrateOfficePackAgentFromSettings", () => {
 
     const row = db
       .prepare("SELECT id, name, department_id, acts_as_planning_leader FROM agents WHERE id = 'novel-seed-1'")
-      .get() as
-      | { id: string; name: string; department_id: string | null; acts_as_planning_leader: number }
-      | undefined;
+      .get() as { id: string; name: string; department_id: string | null; acts_as_planning_leader: number } | undefined;
     expect(row).toEqual({
       id: "novel-seed-1",
       name: "Luna",

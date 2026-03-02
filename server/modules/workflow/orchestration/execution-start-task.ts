@@ -135,9 +135,10 @@ export function createExecutionStartTaskTools(deps: CreateExecutionStartTaskTool
         "error",
         `Execution blocked: isolated worktree creation failed for project path '${projPath}'`,
       );
-      db.prepare(
-        "UPDATE tasks SET status = 'pending', started_at = NULL, updated_at = ? WHERE id = ?",
-      ).run(rollbackAt, taskId);
+      db.prepare("UPDATE tasks SET status = 'pending', started_at = NULL, updated_at = ? WHERE id = ?").run(
+        rollbackAt,
+        taskId,
+      );
       db.prepare(
         "UPDATE agents SET status = 'idle', current_task_id = CASE WHEN current_task_id = ? THEN NULL ELSE current_task_id END WHERE id = ?",
       ).run(taskId, execAgent.id);

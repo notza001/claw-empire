@@ -399,7 +399,9 @@ export async function pollTelegramReceiverOnce(options: {
   let offsetsChanged = false;
 
   for (const route of config.routes) {
-    const persistedOffset = hasPerTokenOffset ? persistedOffsets.byToken[route.tokenKey] ?? 0 : persistedOffsets.legacy;
+    const persistedOffset = hasPerTokenOffset
+      ? (persistedOffsets.byToken[route.tokenKey] ?? 0)
+      : persistedOffsets.legacy;
     const inMemoryOffset = inMemoryOffsets.get(route.tokenKey) ?? 0;
     const nextOffset = Math.max(persistedOffset, inMemoryOffset);
 

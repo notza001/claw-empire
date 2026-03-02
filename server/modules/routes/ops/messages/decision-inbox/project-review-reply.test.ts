@@ -67,7 +67,7 @@ function createBaseInput(db: DatabaseSync, overrides?: Partial<ProjectReviewRepl
     l: (ko: string[], en: string[], ja: string[], zh: string[]) => ({ ko, en, ja, zh }),
     broadcast: vi.fn(),
     finishReview: vi.fn(),
-    getProjectReviewDecisionState: () => ({ snapshot_hash: "snap-1" } as any),
+    getProjectReviewDecisionState: () => ({ snapshot_hash: "snap-1" }) as any,
     recordProjectReviewDecisionEvent: vi.fn(),
     getProjectReviewTaskChoices: () => [],
     openSupplementRound: vi.fn(() => ({ started: false, reason: "not_used" })),
@@ -207,7 +207,9 @@ describe("project review reply", () => {
         action: "start_project_review",
       });
       expect((resPayload.body?.started_task_ids as string[] | undefined) ?? []).toEqual(["task-1"]);
-      expect((deps.recordProjectReviewDecisionEvent as any).mock.calls[0]?.[0]?.event_type).toBe("start_review_meeting");
+      expect((deps.recordProjectReviewDecisionEvent as any).mock.calls[0]?.[0]?.event_type).toBe(
+        "start_review_meeting",
+      );
     } finally {
       db.close();
     }
@@ -255,7 +257,9 @@ describe("project review reply", () => {
         action: "start_project_review_blocked",
       });
       const renderSubtasks = db
-        .prepare("SELECT id, title, target_department_id, status FROM subtasks WHERE task_id = 'task-1' ORDER BY created_at ASC")
+        .prepare(
+          "SELECT id, title, target_department_id, status FROM subtasks WHERE task_id = 'task-1' ORDER BY created_at ASC",
+        )
         .all() as Array<{ id: string; title: string; target_department_id: string | null; status: string }>;
       expect(renderSubtasks).toHaveLength(1);
       expect(renderSubtasks[0]).toMatchObject({
@@ -312,7 +316,9 @@ describe("project review reply", () => {
         action: "start_project_review_blocked",
       });
       const renderSubtasks = db
-        .prepare("SELECT id, title, target_department_id, status FROM subtasks WHERE task_id = 'task-1' ORDER BY created_at ASC")
+        .prepare(
+          "SELECT id, title, target_department_id, status FROM subtasks WHERE task_id = 'task-1' ORDER BY created_at ASC",
+        )
         .all() as Array<{ id: string; title: string; target_department_id: string | null; status: string }>;
       expect(renderSubtasks).toHaveLength(1);
       expect(renderSubtasks[0]).toMatchObject({

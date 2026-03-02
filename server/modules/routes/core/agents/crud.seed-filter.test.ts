@@ -232,12 +232,12 @@ describe("agent CRUD seed filter", () => {
       );
 
       expect(res.statusCode).toBe(200);
-      const before = db.prepare("SELECT acts_as_planning_leader FROM agents WHERE id = ?").get("video_preprod-seed-1") as
-        | { acts_as_planning_leader: number }
-        | undefined;
-      const after = db.prepare("SELECT acts_as_planning_leader FROM agents WHERE id = ?").get("video_preprod-seed-2") as
-        | { acts_as_planning_leader: number }
-        | undefined;
+      const before = db
+        .prepare("SELECT acts_as_planning_leader FROM agents WHERE id = ?")
+        .get("video_preprod-seed-1") as { acts_as_planning_leader: number } | undefined;
+      const after = db
+        .prepare("SELECT acts_as_planning_leader FROM agents WHERE id = ?")
+        .get("video_preprod-seed-2") as { acts_as_planning_leader: number } | undefined;
       expect(before?.acts_as_planning_leader).toBe(0);
       expect(after?.acts_as_planning_leader).toBe(1);
 

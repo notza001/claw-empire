@@ -68,8 +68,8 @@ export function createMeetingLeaderSelectionTools(deps: LeaderSelectionDeps) {
   ): string[] {
     const task = (preloadedTask ??
       (db.prepare("SELECT title, description, department_id FROM tasks WHERE id = ?").get(taskId) as
-      | { title: string; description: string | null; department_id: string | null }
-      | undefined)) as { title: string; description: string | null; department_id: string | null } | undefined;
+        | { title: string; description: string | null; department_id: string | null }
+        | undefined)) as { title: string; description: string | null; department_id: string | null } | undefined;
 
     const deptSet = new Set<string>();
     if (fallbackDeptId) deptSet.add(fallbackDeptId);
@@ -153,7 +153,8 @@ export function createMeetingLeaderSelectionTools(deps: LeaderSelectionDeps) {
 
         if (includePlanning) {
           // 기획팀장은 항상 포함
-          const planningLeader = findTeamLeader("planning", constrainedAgentIds) ?? findTeamLeader("planning", packScopedAgentIds);
+          const planningLeader =
+            findTeamLeader("planning", constrainedAgentIds) ?? findTeamLeader("planning", packScopedAgentIds);
           if (planningLeader && !seen.has(planningLeader.id)) {
             leaders.unshift(planningLeader);
             seen.add(planningLeader.id);
@@ -163,7 +164,9 @@ export function createMeetingLeaderSelectionTools(deps: LeaderSelectionDeps) {
         // manual 모드에서도 관련부서를 감지하지 못했거나 소수일 때는 팩 범위 팀장으로 보강한다.
         if (fallbackAll && leaders.length < minLeaders) {
           const fallbackScope =
-            Array.isArray(packScopedAgentIds) && packScopedAgentIds.length > 0 ? packScopedAgentIds : constrainedAgentIds;
+            Array.isArray(packScopedAgentIds) && packScopedAgentIds.length > 0
+              ? packScopedAgentIds
+              : constrainedAgentIds;
           for (const leader of getAllActiveTeamLeaders(fallbackScope)) {
             if (seen.has(leader.id)) continue;
             leaders.push(leader);

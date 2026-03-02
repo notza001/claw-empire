@@ -398,14 +398,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "development",
-                "novel",
-                "report",
-                "video_preprod",
-                "web_research_report",
-                "roleplay"
-              ]
+              "enum": ["development", "novel", "report", "video_preprod", "web_research_report", "roleplay"]
             },
             "description": "Filter by workflow pack key."
           }
@@ -3961,13 +3954,7 @@
                             "type": "string"
                           }
                         },
-                        "required": [
-                          "sessionKey",
-                          "channel",
-                          "targetId",
-                          "enabled",
-                          "displayName"
-                        ],
+                        "required": ["sessionKey", "channel", "targetId", "enabled", "displayName"],
                         "additionalProperties": true
                       }
                     }
@@ -4859,12 +4846,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "packKey",
-                    "confidence",
-                    "reason",
-                    "requiresConfirmation"
-                  ],
+                  "required": ["packKey", "confidence", "reason", "requiresConfirmation"],
                   "additionalProperties": true
                 },
                 "example": {

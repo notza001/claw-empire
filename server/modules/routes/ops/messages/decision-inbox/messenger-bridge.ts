@@ -55,7 +55,10 @@ export function createDecisionInboxMessengerBridge(deps: DecisionBridgeDeps) {
   });
 
   const sentDecisionNoticeSignatureById = new Map<string, { signature: string; sentAt: number }>();
-  const decisionRouteByDecisionId = new Map<string, { channel: MessengerChannel; targetId: string; updatedAt: number }>();
+  const decisionRouteByDecisionId = new Map<
+    string,
+    { channel: MessengerChannel; targetId: string; updatedAt: number }
+  >();
 
   function pickDecisionL10n(ko: string, en: string, ja: string, zh: string): string {
     const lang = getPreferredLanguage();
@@ -328,7 +331,8 @@ export function createDecisionInboxMessengerBridge(deps: DecisionBridgeDeps) {
         `⚠️ 组长评审会议暂缓启动。(${blockedLabel}, ${reasonLabel})`,
       );
     }
-    const optionLabel = item.options.find((option) => option.number === optionNumber)?.label || `option ${optionNumber}`;
+    const optionLabel =
+      item.options.find((option) => option.number === optionNumber)?.label || `option ${optionNumber}`;
     const resolved = payload.resolved === true;
     if (resolved) {
       return pickDecisionL10n(
