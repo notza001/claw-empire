@@ -105,9 +105,11 @@ describe("initializeOAuthRuntime", () => {
       runInTransaction: (fn) => fn(),
     });
 
-    const agentSql = (db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='agents'").get() as {
-      sql: string;
-    }).sql;
+    const agentSql = (
+      db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='agents'").get() as {
+        sql: string;
+      }
+    ).sql;
     const historySql = (
       db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='skill_learning_history'").get() as {
         sql: string;
@@ -188,17 +190,19 @@ describe("initializeOAuthRuntime", () => {
       },
     });
 
-    const agentSql = (db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='agents'").get() as {
-      sql: string;
-    }).sql;
+    const agentSql = (
+      db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='agents'").get() as {
+        sql: string;
+      }
+    ).sql;
     const historySql = (
       db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='skill_learning_history'").get() as {
         sql: string;
       }
     ).sql;
-    const row = db.prepare("SELECT workflow_pack_key, cli_provider, created_at FROM agents WHERE id = ?").get(
-      "legacy-agent",
-    ) as {
+    const row = db
+      .prepare("SELECT workflow_pack_key, cli_provider, created_at FROM agents WHERE id = ?")
+      .get("legacy-agent") as {
       workflow_pack_key: string;
       cli_provider: string;
       created_at: number;

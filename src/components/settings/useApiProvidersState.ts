@@ -174,9 +174,7 @@ export function useApiProvidersState({ tab, t }: { tab: SettingsTab; t: TFunctio
         api.getAgents(),
         api.getDepartments({ workflowPackKey: "development" }),
       ]);
-      setApiAssignAgents(
-        agents.filter((agent) => (agent.workflow_pack_key ?? "development") === "development"),
-      );
+      setApiAssignAgents(agents.filter((agent) => (agent.workflow_pack_key ?? "development") === "development"));
       setApiAssignDepts(depts);
     } catch (error) {
       console.error("Failed to load agents:", error);
