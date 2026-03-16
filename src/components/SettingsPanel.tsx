@@ -60,7 +60,7 @@ export default function SettingsPanel({
     [onSave],
   );
 
-  const apiState = useApiProvidersState({ tab, t });
+  const apiState = useApiProvidersState({ tab, t, settings });
 
   const loadOAuthStatus = useCallback(async () => {
     setOauthLoading(true);

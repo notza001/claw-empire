@@ -75,7 +75,7 @@ Claw-Empire는 **CLI**, **OAuth**, **직접 API 키** 방식으로 연결된 AI 
 - **중단된 실행 뒤에 `working` 상태로 남은 에이전트가 자동 복구됩니다** - lifecycle startup/주기 스윕이 활성 `in_progress` 작업이 없는 `working` 에이전트를 `idle`로 되돌립니다.
 - **Settings > API에서 공식 direct API 프리셋을 바로 쓸 수 있습니다** - OpenCode Go와 Bailian Coding Plan 프리셋이 Base URL 고정, fallback 모델 시드, 명시적 refresh/retry 흐름을 제공합니다.
 - **Kimi Code가 end-to-end 프로바이더로 들어왔습니다** - CLI 실행, provider 라벨, 스킬 learn/unlearn, prompt skill 노출, video-preprod bootstrap, 기존 provider 제약 갱신까지 연결했습니다.
-- **API 모델 배정은 development 팩 스코프만 보도록 정리됐습니다** - 기본 개발 배정 흐름에서 다른 오피스팩 부서를 섞어 보여주지 않습니다.
+- **API 모델 배정은 development를 기본으로 시작하고 초기 셋업이 끝난 오피스팩까지 확장됩니다** - `development`를 기본 기준선으로 유지하면서, 이미 hydrate된 오피스팩도 assign 대상으로 함께 보여줍니다.
 - **로컬 E2E 검증이 더 안전하고 깔끔해졌습니다** - `pnpm run test:e2e`가 Playwright 실행 전후로 격리 런타임을 초기화하고, 기존 `8810` 서버 재사용도 명시적으로 opt-in 할 때만 동작합니다.
 
 - 상세 문서: [`docs/releases/v2.0.4.md`](docs/releases/v2.0.4.md)
@@ -86,14 +86,14 @@ Claw-Empire는 **CLI**, **OAuth**, **직접 API 키** 방식으로 연결된 AI 
 
 오피스팩마다 협업 구조, 이름 시드, 워크플로우 성향이 다르게 적용됩니다.
 
-| 팩 | 핵심 초점 | 대표 조직 구성 |
-| --- | --- | --- |
-| `development` (`DEV`) | 하위 호환을 유지하는 기본 개발 기준선 | 기획 / 개발 / 디자인 / QA-QC / DevSecOps / 운영 |
-| `report` (`RPT`) | 정형 보고서와 문서 산출물 제작 | 편집기획실, 리서치엔진팀, 문서디자인팀, 검수팀 |
-| `web_research_report` (`WEB`) | 출처 수집과 인용/근거 검증 중심 리서치 | 조사전략실, 크롤링팀, 팩트체크팀 |
-| `novel` (`NOV`) | 세계관·서사·문체 일관성 중심 집필 | 세계관실, 서사엔진팀, 캐릭터 아트팀, 톤 검수팀 |
-| `video_preprod` (`VID`) | 콘셉트/대본/샷리스트/편집노트 중심 프리프로덕션 | 프리프로덕션팀, 씬 엔진팀, 아트/촬영팀, 컷 검수팀 |
-| `roleplay` (`RPG`) | 캐릭터 몰입형 대사 연기와 설정 일관성 | 캐릭터기획실, 대사엔진팀, 연출아트팀, 캐릭터검수팀 |
+| 팩                            | 핵심 초점                                       | 대표 조직 구성                                     |
+| ----------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| `development` (`DEV`)         | 하위 호환을 유지하는 기본 개발 기준선           | 기획 / 개발 / 디자인 / QA-QC / DevSecOps / 운영    |
+| `report` (`RPT`)              | 정형 보고서와 문서 산출물 제작                  | 편집기획실, 리서치엔진팀, 문서디자인팀, 검수팀     |
+| `web_research_report` (`WEB`) | 출처 수집과 인용/근거 검증 중심 리서치          | 조사전략실, 크롤링팀, 팩트체크팀                   |
+| `novel` (`NOV`)               | 세계관·서사·문체 일관성 중심 집필               | 세계관실, 서사엔진팀, 캐릭터 아트팀, 톤 검수팀     |
+| `video_preprod` (`VID`)       | 콘셉트/대본/샷리스트/편집노트 중심 프리프로덕션 | 프리프로덕션팀, 씬 엔진팀, 아트/촬영팀, 컷 검수팀  |
+| `roleplay` (`RPG`)            | 캐릭터 몰입형 대사 연기와 설정 일관성           | 캐릭터기획실, 대사엔진팀, 연출아트팀, 캐릭터검수팀 |
 
 ## 스크린샷
 
@@ -197,33 +197,33 @@ Claw-Empire는 **CLI**, **OAuth**, **직접 API 키** 방식으로 연결된 AI 
 
 ## 주요 기능
 
-| 기능                         | 설명                                                                                                                              |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| **픽셀 아트 오피스**         | 6개 부서에 걸쳐 에이전트들이 이동, 업무, 회의를 진행하는 애니메이션 오피스 뷰                                                     |
-| **워크플로우 팩 프로필**     | `development`, `report`, `web_research_report`, `novel`, `video_preprod`, `roleplay` 6종 내장 팩별로 라우팅 스키마, QA 규칙, 출력 템플릿을 다르게 적용 |
-| **오피스 팩 프로필**         | 팩별 전용 부서 토폴로지, 이름/테마 시드 프리셋, 직원·부서 데이터 분리 운영을 지원 (개발 팩은 기존 DB 기준선 유지)               |
-| **칸반 태스크 보드**         | Inbox, Planned, Collaborating, In Progress, Review, Done — 드래그 앤 드롭이 가능한 완전한 태스크 생애주기 관리                    |
-| **CEO 채팅 & 디렉티브**      | 팀 리더와의 직접 소통; `$` 디렉티브에서 회의 여부와 작업 경로/컨텍스트(`project_path`, `project_context`) 기반 지시 지원          |
-| **멀티 프로바이더 지원**     | Claude Code, Codex CLI, Gemini CLI, OpenCode, Kimi Code, Antigravity — 하나의 대시보드에서 모두 관리                             |
+| 기능                         | 설명                                                                                                                                                                                   |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **픽셀 아트 오피스**         | 6개 부서에 걸쳐 에이전트들이 이동, 업무, 회의를 진행하는 애니메이션 오피스 뷰                                                                                                          |
+| **워크플로우 팩 프로필**     | `development`, `report`, `web_research_report`, `novel`, `video_preprod`, `roleplay` 6종 내장 팩별로 라우팅 스키마, QA 규칙, 출력 템플릿을 다르게 적용                                 |
+| **오피스 팩 프로필**         | 팩별 전용 부서 토폴로지, 이름/테마 시드 프리셋, 직원·부서 데이터 분리 운영을 지원 (개발 팩은 기존 DB 기준선 유지)                                                                      |
+| **칸반 태스크 보드**         | Inbox, Planned, Collaborating, In Progress, Review, Done — 드래그 앤 드롭이 가능한 완전한 태스크 생애주기 관리                                                                         |
+| **CEO 채팅 & 디렉티브**      | 팀 리더와의 직접 소통; `$` 디렉티브에서 회의 여부와 작업 경로/컨텍스트(`project_path`, `project_context`) 기반 지시 지원                                                               |
+| **멀티 프로바이더 지원**     | Claude Code, Codex CLI, Gemini CLI, OpenCode, Kimi Code, Antigravity — 하나의 대시보드에서 모두 관리                                                                                   |
 | **외부 API 프로바이더**      | 설정 > API 탭에서 에이전트를 외부 LLM API(OpenAI, Anthropic, Google, Ollama, OpenRouter, Together, Groq, Cerebras, 커스텀)에 연결하고 OpenCode Go/Bailian 공식 프리셋도 바로 사용 가능 |
-| **OAuth 연동**               | 로컬 SQLite에 AES 암호화된 토큰 저장을 사용하는 GitHub & Google OAuth                                                             |
-| **실시간 WebSocket**         | 실시간 상태 업데이트, 활동 피드, 에이전트 상태 동기화                                                                             |
-| **활성 에이전트 제어**       | 작업 중 에이전트 상태(프로세스/활동/유휴) 확인 및 멈춘 태스크 강제 중지                                                           |
-| **작업 보고서 시스템**       | 완료 팝업, 보고서 이력, 팀별 보고 드릴다운, 기획팀장 최종 취합 아카이브                                                           |
-| **직원관리**                 | 직원 채용·수정·삭제, 다국어 이름, 부서·직급·프로바이더 선택 및 성격 설정 지원                                                     |
-| **에이전트 랭킹 & XP**       | 완료된 태스크로 XP를 획득하는 에이전트; 랭킹 보드에서 상위 성과자 추적                                                            |
-| **스킬 라이브러리**          | 카테고리별로 정리된 600개 이상의 스킬 (Frontend, Backend, Design, AI, DevOps, Security 등), 커스텀 스킬 업로드 지원               |
-| **회의 시스템**              | AI 생성 회의록과 다중 라운드 검토가 포함된 계획 및 임시 회의                                                                      |
-| **Git Worktree 격리**        | 각 에이전트는 독립된 git 브랜치에서 작업하며 CEO 승인 시에만 병합                                                                 |
-| **다국어 UI**                | 한국어, 영어, 일본어, 중국어 — 자동 감지 또는 수동 설정                                                                           |
-| **메신저 연동**              | Telegram, Discord, Slack 등 — 내장 직접 채널 세션으로 `$` CEO 디렉티브 전송 및 태스크 업데이트 수신 (OpenClaw 선택 연동)          |
-| **PowerPoint 내보내기**      | 회의록과 보고서로부터 프레젠테이션 슬라이드 생성                                                                                  |
-| **통신 QA 스크립트**         | `test:comm:*` 스크립트로 CLI/OAuth/API 통신 상태를 재시도/증거 로그와 함께 검증                                                   |
-| **인앱 업데이트 알림**       | GitHub 최신 릴리즈를 확인해 새 버전이 있으면 상단 배너로 OS별 `git pull` 안내와 릴리즈 노트 링크 제공                             |
-| **부서 관리**                | 기획, 개발, 디자인, QA/QC, DevSecOps, 운영 — 전용 관리 탭에서 화살표/드래그앤드롭 순번 편집 가능                                  |
-| **직원 직접선택**            | 프로젝트에 특정 직원을 지정하면 회의 및 업무 위임 시 해당 직원만 대상으로 운영                                                    |
-| **스프라이트 등록 안전장치** | 중복 스프라이트 번호 파일 덮어쓰기 방지 (`409 sprite_number_exists` 응답)                                                         |
-| **커스텀 스킬 업로드**       | UI에서 `.md` 스킬 파일을 업로드하여 CLI 대표자에게 커스텀 스킬을 학습시키며, 칠판 교실 애니메이션과 관리 인터페이스 제공          |
+| **OAuth 연동**               | 로컬 SQLite에 AES 암호화된 토큰 저장을 사용하는 GitHub & Google OAuth                                                                                                                  |
+| **실시간 WebSocket**         | 실시간 상태 업데이트, 활동 피드, 에이전트 상태 동기화                                                                                                                                  |
+| **활성 에이전트 제어**       | 작업 중 에이전트 상태(프로세스/활동/유휴) 확인 및 멈춘 태스크 강제 중지                                                                                                                |
+| **작업 보고서 시스템**       | 완료 팝업, 보고서 이력, 팀별 보고 드릴다운, 기획팀장 최종 취합 아카이브                                                                                                                |
+| **직원관리**                 | 직원 채용·수정·삭제, 다국어 이름, 부서·직급·프로바이더 선택 및 성격 설정 지원                                                                                                          |
+| **에이전트 랭킹 & XP**       | 완료된 태스크로 XP를 획득하는 에이전트; 랭킹 보드에서 상위 성과자 추적                                                                                                                 |
+| **스킬 라이브러리**          | 카테고리별로 정리된 600개 이상의 스킬 (Frontend, Backend, Design, AI, DevOps, Security 등), 커스텀 스킬 업로드 지원                                                                    |
+| **회의 시스템**              | AI 생성 회의록과 다중 라운드 검토가 포함된 계획 및 임시 회의                                                                                                                           |
+| **Git Worktree 격리**        | 각 에이전트는 독립된 git 브랜치에서 작업하며 CEO 승인 시에만 병합                                                                                                                      |
+| **다국어 UI**                | 한국어, 영어, 일본어, 중국어 — 자동 감지 또는 수동 설정                                                                                                                                |
+| **메신저 연동**              | Telegram, Discord, Slack 등 — 내장 직접 채널 세션으로 `$` CEO 디렉티브 전송 및 태스크 업데이트 수신 (OpenClaw 선택 연동)                                                               |
+| **PowerPoint 내보내기**      | 회의록과 보고서로부터 프레젠테이션 슬라이드 생성                                                                                                                                       |
+| **통신 QA 스크립트**         | `test:comm:*` 스크립트로 CLI/OAuth/API 통신 상태를 재시도/증거 로그와 함께 검증                                                                                                        |
+| **인앱 업데이트 알림**       | GitHub 최신 릴리즈를 확인해 새 버전이 있으면 상단 배너로 OS별 `git pull` 안내와 릴리즈 노트 링크 제공                                                                                  |
+| **부서 관리**                | 기획, 개발, 디자인, QA/QC, DevSecOps, 운영 — 전용 관리 탭에서 화살표/드래그앤드롭 순번 편집 가능                                                                                       |
+| **직원 직접선택**            | 프로젝트에 특정 직원을 지정하면 회의 및 업무 위임 시 해당 직원만 대상으로 운영                                                                                                         |
+| **스프라이트 등록 안전장치** | 중복 스프라이트 번호 파일 덮어쓰기 방지 (`409 sprite_number_exists` 응답)                                                                                                              |
+| **커스텀 스킬 업로드**       | UI에서 `.md` 스킬 파일을 업로드하여 CLI 대표자에게 커스텀 스킬을 학습시키며, 칠판 교실 애니메이션과 관리 인터페이스 제공                                                               |
 
 ---
 
@@ -422,7 +422,6 @@ echo "<GITHUB_TOKEN_WITH_PACKAGES_WRITE>" | docker login ghcr.io -u <github-user
 docker tag claw-empire-claw-empire:latest ghcr.io/<github-user>/claw-empire:latest
 docker push ghcr.io/<github-user>/claw-empire:latest
 ```
-
 
 ### 사전 요구사항
 
@@ -791,6 +790,7 @@ GitHub에 더 최신 릴리즈가 게시되면, Claw-Empire는 UI 상단에 pull
 
 - Bailian Coding Plan API 키는 반드시 `sk-sp-` 접두사로 시작해야 합니다.
 - 이 프리셋들은 저장 즉시 fallback 모델 목록을 시드하므로, live `/models` 조회가 불완전하거나 실패해도 바로 에이전트에 배정할 수 있습니다.
+- assign 모달은 `development`를 기본 기준선으로 사용하고, 초기 셋업이 끝나 hydrate된 오피스팩도 함께 포함합니다.
 - direct API 프리셋은 `glm-5`, `kimi-k2.5`, `minimax-m2.5` 같은 실제 endpoint model id를 사용합니다. `opencode-go/<model-id>` 같은 OpenCode CLI 모델 ID를 쓰지 않습니다.
 - Bailian Coding Plan 키는 인터랙티브 코딩 도구 흐름용으로 안내되는 키입니다. 다른 환경에 재사용하기 전에 공식 문서를 확인하세요.
 
@@ -802,13 +802,13 @@ Claw-Empire는 아래 3가지 방식의 프로바이더를 지원합니다:
 
 CLI 모드로 사용하려면 최소 하나 이상 설치하세요:
 
-| 프로바이더                                                    | 설치                                 | 인증                           |
-| ------------------------------------------------------------- | ------------------------------------ | ------------------------------ |
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | `npm i -g @anthropic-ai/claude-code` | `claude` (안내에 따라 진행)    |
-| [Codex CLI](https://github.com/openai/codex)                  | `npm i -g @openai/codex`             | `.env`에 `OPENAI_API_KEY` 설정 |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli)     | `npm i -g @google/gemini-cli`        | 설정 패널에서 OAuth 인증       |
-| [OpenCode](https://github.com/opencode-ai/opencode)           | `npm i -g opencode`                  | 프로바이더별 설정              |
-| [Kimi Code](https://github.com/MoonshotAI/kimi-cli)           | `uv tool install --python 3.13 kimi-cli` | `kimi auth login`          |
+| 프로바이더                                                    | 설치                                     | 인증                           |
+| ------------------------------------------------------------- | ---------------------------------------- | ------------------------------ |
+| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | `npm i -g @anthropic-ai/claude-code`     | `claude` (안내에 따라 진행)    |
+| [Codex CLI](https://github.com/openai/codex)                  | `npm i -g @openai/codex`                 | `.env`에 `OPENAI_API_KEY` 설정 |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli)     | `npm i -g @google/gemini-cli`            | 설정 패널에서 OAuth 인증       |
+| [OpenCode](https://github.com/opencode-ai/opencode)           | `npm i -g opencode`                      | 프로바이더별 설정              |
+| [Kimi Code](https://github.com/MoonshotAI/kimi-cli)           | `uv tool install --python 3.13 kimi-cli` | `kimi auth login`              |
 
 앱 내 **Settings > CLI Tools** 패널에서 프로바이더와 모델을 설정하세요.
 

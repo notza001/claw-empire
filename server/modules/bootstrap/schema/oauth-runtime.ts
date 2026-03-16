@@ -125,7 +125,8 @@ export function initializeOAuthRuntime(deps: OAuthRuntimeDeps): OAuthRuntimeHelp
   }
   // 기존 DB의 provider CHECK 제약 확장 (SQLite는 ALTER CHECK 미지원이므로 테이블 재구성이 필요)
   try {
-    const agentSql = (db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='agents'").get() as any)?.sql ?? "";
+    const agentSql =
+      (db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='agents'").get() as any)?.sql ?? "";
     if (agentSql && !agentSql.includes("'kimi'")) {
       const workflowPackExpr = hasColumn("agents", "workflow_pack_key")
         ? "COALESCE(workflow_pack_key, 'development')"

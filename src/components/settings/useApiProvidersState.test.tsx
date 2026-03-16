@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useApiProvidersState } from "./useApiProvidersState";
+import { DEFAULT_SETTINGS, type CompanySettings } from "../../types";
 
 const apiMocks = vi.hoisted(() => ({
   createApiProvider: vi.fn(),
@@ -30,6 +31,13 @@ function t(messages: Record<string, string>): string {
   return messages.en ?? messages.ko ?? messages.ja ?? messages.zh ?? Object.values(messages)[0] ?? "";
 }
 
+function makeSettings(overrides: Partial<CompanySettings> = {}): CompanySettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...overrides,
+  };
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   vi.clearAllMocks();
@@ -50,7 +58,7 @@ describe("useApiProvidersState preset loading", () => {
   });
 
   it("does not auto-retry failed preset loads, but allows manual retry", async () => {
-    const { result } = renderHook(() => useApiProvidersState({ tab: "api", t }));
+    const { result } = renderHook(() => useApiProvidersState({ tab: "api", t, settings: makeSettings() }));
 
     await waitFor(() => {
       expect(apiMocks.getApiProviderPresets).toHaveBeenCalledTimes(1);
@@ -98,13 +106,27 @@ describe("useApiProvidersState model assignment", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  it("loads development departments when assigning an API model", async () => {
+  it("loads development plus hydrated pack targets when assigning an API model", async () => {
     apiMocks.getAgents.mockResolvedValueOnce([
       { id: "agent-dev", workflow_pack_key: "development" },
       { id: "agent-video", workflow_pack_key: "video_preprod" },
+      { id: "agent-report", workflow_pack_key: "report" },
       { id: "agent-legacy" },
     ]);
-    const { result } = renderHook(() => useApiProvidersState({ tab: "api", t }));
+    apiMocks.getDepartments.mockImplementation(async (options?: { workflowPackKey?: string }) => {
+      if (options?.workflowPackKey === "video_preprod") {
+        return [{ id: "planning", name: "Storyboard", name_ko: "스토리보드", workflow_pack_key: "video_preprod" }];
+      }
+      return [{ id: "planning", name: "Planning", name_ko: "기획", workflow_pack_key: "development" }];
+    });
+
+    const { result } = renderHook(() =>
+      useApiProvidersState({
+        tab: "api",
+        t,
+        settings: makeSettings({ officePackHydratedPacks: ["video_preprod"] }),
+      }),
+    );
 
     await waitFor(() => {
       expect(apiMocks.getApiProviders).toHaveBeenCalledTimes(1);
@@ -114,11 +136,17 @@ describe("useApiProvidersState model assignment", () => {
       await result.current.handleApiModelAssign("provider-1", "gpt-4o");
     });
 
-    expect(apiMocks.getAgents).toHaveBeenCalledTimes(1);
-    expect(apiMocks.getDepartments).toHaveBeenCalledWith({ workflowPackKey: "development" });
+    expect(apiMocks.getAgents).toHaveBeenCalledWith({ includeSeed: true });
+    expect(apiMocks.getDepartments).toHaveBeenNthCalledWith(1, { workflowPackKey: "development" });
+    expect(apiMocks.getDepartments).toHaveBeenNthCalledWith(2, { workflowPackKey: "video_preprod" });
     expect(result.current.apiAssignAgents).toEqual([
       { id: "agent-dev", workflow_pack_key: "development" },
+      { id: "agent-video", workflow_pack_key: "video_preprod" },
       { id: "agent-legacy" },
+    ]);
+    expect(result.current.apiAssignDepts).toEqual([
+      { id: "planning", name: "Planning", name_ko: "기획", workflow_pack_key: "development" },
+      { id: "planning", name: "Storyboard", name_ko: "스토리보드", workflow_pack_key: "video_preprod" },
     ]);
   });
 });

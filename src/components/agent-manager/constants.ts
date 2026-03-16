@@ -2,7 +2,16 @@ import type { AgentRole, CliProvider } from "../../types";
 import type { DeptForm, FormData } from "./types";
 
 export const ROLES: AgentRole[] = ["team_leader", "senior", "junior", "intern"];
-export const CLI_PROVIDERS: CliProvider[] = ["claude", "codex", "gemini", "opencode", "kimi", "copilot", "antigravity", "api"];
+export const CLI_PROVIDERS: CliProvider[] = [
+  "claude",
+  "codex",
+  "gemini",
+  "opencode",
+  "kimi",
+  "copilot",
+  "antigravity",
+  "api",
+];
 
 export const ROLE_LABEL: Record<string, { ko: string; en: string }> = {
   team_leader: { ko: "팀장", en: "Leader" },

@@ -16,6 +16,7 @@ import type {
   Department,
   MessengerChannelType,
   MessengerSessionConfig,
+  WorkflowPackKey,
 } from "../../types";
 
 export type Locale = UiLanguage;
@@ -54,6 +55,10 @@ export type ApiTestResultMap = Record<string, { ok: boolean; msg: string }>;
 export interface ApiAssignTarget {
   providerId: string;
   model: string;
+}
+
+export interface ApiAssignDepartment extends Department {
+  workflow_pack_key: WorkflowPackKey;
 }
 
 export interface CliSettingsTabProps {
@@ -115,7 +120,7 @@ export interface ApiStateBundle {
   apiModelsExpanded: Record<string, boolean>;
   apiAssignTarget: ApiAssignTarget | null;
   apiAssignAgents: Agent[];
-  apiAssignDepts: Department[];
+  apiAssignDepts: ApiAssignDepartment[];
   apiAssigning: boolean;
   setApiAddMode: Dispatch<SetStateAction<boolean>>;
   setApiEditingId: Dispatch<SetStateAction<string | null>>;

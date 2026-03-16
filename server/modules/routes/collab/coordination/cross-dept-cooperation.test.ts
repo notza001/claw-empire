@@ -111,7 +111,8 @@ describe("createCrossDeptCooperationTools", () => {
       sendAgentMessage: vi.fn(),
       notifyCeo: vi.fn(),
       l: (ko: unknown, en: unknown, ja: unknown, zh: unknown) => ({ ko, en, ja, zh }),
-      pickL: (messages: Record<string, unknown>, lang: string) => pickVariant(messages[lang] ?? messages.en ?? messages.ko),
+      pickL: (messages: Record<string, unknown>, lang: string) =>
+        pickVariant(messages[lang] ?? messages.en ?? messages.ko),
       startTaskExecutionForAgent: vi.fn(),
       linkCrossDeptTaskToParentSubtask: vi.fn(() => null),
       detectProjectPath: vi.fn(() => "/workspace/demo"),
@@ -156,9 +157,9 @@ describe("createCrossDeptCooperationTools", () => {
 
     vi.runAllTimers();
 
-    const crossTask = db.prepare("SELECT status, assigned_agent_id, source_task_id FROM tasks WHERE source_task_id = ?").get(
-      "task-parent",
-    ) as
+    const crossTask = db
+      .prepare("SELECT status, assigned_agent_id, source_task_id FROM tasks WHERE source_task_id = ?")
+      .get("task-parent") as
       | {
           status: string;
           assigned_agent_id: string | null;
@@ -220,7 +221,8 @@ describe("createCrossDeptCooperationTools", () => {
       sendAgentMessage: vi.fn(),
       notifyCeo: vi.fn(),
       l: (ko: unknown, en: unknown, ja: unknown, zh: unknown) => ({ ko, en, ja, zh }),
-      pickL: (messages: Record<string, unknown>, lang: string) => pickVariant(messages[lang] ?? messages.en ?? messages.ko),
+      pickL: (messages: Record<string, unknown>, lang: string) =>
+        pickVariant(messages[lang] ?? messages.en ?? messages.ko),
       startTaskExecutionForAgent: vi.fn(),
       linkCrossDeptTaskToParentSubtask: vi.fn(() => "subtask-linked"),
       detectProjectPath: vi.fn(() => "/workspace/demo"),

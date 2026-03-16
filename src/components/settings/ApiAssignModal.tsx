@@ -1,5 +1,6 @@
+import { getOfficePackMeta } from "../../app/office-workflow-pack";
 import AgentAvatar, { buildSpriteMap } from "../AgentAvatar";
-import type { Agent } from "../../types";
+import type { Agent, WorkflowPackKey } from "../../types";
 import type { ApiStateBundle, TFunction } from "./types";
 
 interface ApiAssignModalProps {
@@ -16,6 +17,11 @@ export default function ApiAssignModal({ t, localeTag, apiState }: ApiAssignModa
 
   const spriteMap = buildSpriteMap(apiAssignAgents);
   const localName = (nameEn: string, nameKo: string) => (localeTag === "ko" ? nameKo || nameEn : nameEn || nameKo);
+  const normalizeWorkflowPackKey = (value: unknown): WorkflowPackKey =>
+    typeof value === "string" &&
+    ["development", "novel", "report", "video_preprod", "web_research_report", "roleplay"].includes(value)
+      ? (value as WorkflowPackKey)
+      : "development";
   const ROLE_LABELS: Record<string, Record<string, string>> = {
     team_leader: { ko: "팀장", en: "Team Leader", ja: "チームリーダー", zh: "组长" },
     senior: { ko: "시니어", en: "Senior", ja: "シニア", zh: "高级" },
@@ -37,15 +43,38 @@ export default function ApiAssignModal({ t, localeTag, apiState }: ApiAssignModa
     return <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${color}`}>{text}</span>;
   };
 
-  const grouped = apiAssignDepts
-    .map((dept) => ({
-      dept,
-      agents: apiAssignAgents.filter((agent) => agent.department_id === dept.id),
-    }))
-    .filter((group) => group.agents.length > 0);
+  const packKeys = [
+    ...new Set([
+      "development",
+      ...apiAssignDepts.map((dept) => dept.workflow_pack_key),
+      ...apiAssignAgents.map((agent) => normalizeWorkflowPackKey(agent.workflow_pack_key)),
+    ]),
+  ] as WorkflowPackKey[];
 
-  const deptIds = new Set(apiAssignDepts.map((dept) => dept.id));
-  const unassigned = apiAssignAgents.filter((agent) => !agent.department_id || !deptIds.has(agent.department_id));
+  const packSections = packKeys
+    .map((packKey) => {
+      const depts = apiAssignDepts.filter((dept) => dept.workflow_pack_key === packKey);
+      const deptIds = new Set(depts.map((dept) => dept.id));
+      const departments = depts
+        .map((dept) => ({
+          dept,
+          agents: apiAssignAgents.filter(
+            (agent) => agent.department_id === dept.id && normalizeWorkflowPackKey(agent.workflow_pack_key) === packKey,
+          ),
+        }))
+        .filter((group) => group.agents.length > 0);
+      const unassigned = apiAssignAgents.filter(
+        (agent) =>
+          normalizeWorkflowPackKey(agent.workflow_pack_key) === packKey &&
+          (!agent.department_id || !deptIds.has(agent.department_id)),
+      );
+      return {
+        packKey,
+        departments,
+        unassigned,
+      };
+    })
+    .filter((section) => section.departments.length > 0 || section.unassigned.length > 0);
 
   const renderAgentRow = (agent: Agent) => {
     const isAssigned =
@@ -110,29 +139,38 @@ export default function ApiAssignModal({ t, localeTag, apiState }: ApiAssignModa
             </p>
           ) : (
             <>
-              {grouped.map(({ dept, agents }) => (
-                <div key={dept.id}>
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-slate-700/40">
-                    <span className="text-sm">{dept.icon}</span>
-                    <span className="text-[11px] font-semibold text-slate-300 tracking-wide">
-                      {localName(dept.name, dept.name_ko)}
+              {packSections.map(({ packKey, departments, unassigned }) => (
+                <div key={packKey} className="space-y-2">
+                  <div className="px-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      {t(getOfficePackMeta(packKey).label)}
                     </span>
-                    <span className="text-[10px] text-slate-600">({agents.length})</span>
                   </div>
-                  {agents.map(renderAgentRow)}
+                  {departments.map(({ dept, agents }) => (
+                    <div key={`${packKey}:${dept.id}`}>
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-slate-700/40">
+                        <span className="text-sm">{dept.icon}</span>
+                        <span className="text-[11px] font-semibold text-slate-300 tracking-wide">
+                          {localName(dept.name, dept.name_ko)}
+                        </span>
+                        <span className="text-[10px] text-slate-600">({agents.length})</span>
+                      </div>
+                      {agents.map(renderAgentRow)}
+                    </div>
+                  ))}
+                  {unassigned.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-slate-700/40">
+                        <span className="text-sm">📁</span>
+                        <span className="text-[11px] font-semibold text-slate-500 tracking-wide">
+                          {t({ ko: "미배정", en: "Unassigned", ja: "未配属", zh: "未分配" })}
+                        </span>
+                      </div>
+                      {unassigned.map(renderAgentRow)}
+                    </div>
+                  )}
                 </div>
               ))}
-              {unassigned.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-slate-700/40">
-                    <span className="text-sm">📁</span>
-                    <span className="text-[11px] font-semibold text-slate-500 tracking-wide">
-                      {t({ ko: "미배정", en: "Unassigned", ja: "未配属", zh: "未分配" })}
-                    </span>
-                  </div>
-                  {unassigned.map(renderAgentRow)}
-                </div>
-              )}
             </>
           )}
         </div>
