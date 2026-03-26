@@ -111,10 +111,15 @@ export function createProjectContextTools(deps: CreateProjectContextToolsDeps) {
    * Returns formatted markdown section or null if no ψ/ found.
    */
   function loadOracleMemory(projectPath: string): string | null {
-    // Look for ψ/ in project root (symlink or directory)
+    // Look for ψ/ in project root, then fallback to shared Oracle vault
+    const homedir = process.env.HOME || "";
     const psiPaths = [
       path.join(projectPath, "ψ", "memory", "learnings"),
       path.join(projectPath, "psi", "memory", "learnings"),
+      // Shared Oracle vault — SenaWang's ψ/ as central memory
+      path.join(homedir, "Work/Test/workshop/SenaWang/ψ/memory/learnings"),
+      // SenaChin's ψ/ as secondary
+      path.join(homedir, "Work/Test/workshop/T1/ψ/memory/learnings"),
     ];
 
     for (const learningsDir of psiPaths) {
@@ -149,6 +154,33 @@ export function createProjectContextTools(deps: CreateProjectContextToolsDeps) {
 
         if (sections.length > 1) return sections.join("\n");
       } catch { /* ψ/ not accessible */ }
+    }
+
+    // Also try to load latest retrospective (what was done recently)
+    const retroPaths = [
+      path.join(projectPath, "ψ", "memory", "retrospectives"),
+      path.join(projectPath, "psi", "memory", "retrospectives"),
+      path.join(homedir, "Work/Test/workshop/SenaWang/ψ/memory/retrospectives"),
+      path.join(homedir, "Work/Test/workshop/T1/ψ/memory/retrospectives"),
+    ];
+
+    for (const retroBase of retroPaths) {
+      try {
+        if (!fs.existsSync(retroBase)) continue;
+        // Find most recent month folder → most recent day → most recent retro
+        const months = fs.readdirSync(retroBase).filter(f => /^\d{4}-\d{2}$/.test(f)).sort().reverse();
+        if (months.length === 0) continue;
+        const monthDir = path.join(retroBase, months[0]);
+        const days = fs.readdirSync(monthDir).filter(f => /^\d{2}$/.test(f)).sort().reverse();
+        if (days.length === 0) continue;
+        const dayDir = path.join(monthDir, days[0]);
+        const retros = fs.readdirSync(dayDir).filter(f => f.endsWith(".md")).sort().reverse();
+        if (retros.length === 0) continue;
+
+        const latestRetro = fs.readFileSync(path.join(dayDir, retros[0]), "utf8");
+        const summary = latestRetro.split("\n").slice(0, 30).join("\n").slice(0, 800);
+        return `## Recent Session (from Oracle retrospective)\n\n${summary}\n`;
+      } catch { /* retro not accessible */ }
     }
 
     return null;
