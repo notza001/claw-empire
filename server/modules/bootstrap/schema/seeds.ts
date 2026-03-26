@@ -41,25 +41,25 @@ export function applyDefaultSeeds(db: DbLike): void {
     );
     // Development (3)
     insertAgent.run(randomUUID(), "Aria", "아리아", "dev", "team_leader", "claude", "👩‍💻", "꼼꼼한 시니어 개발자");
-    insertAgent.run(randomUUID(), "Bolt", "볼트", "dev", "senior", "codex", "⚡", "빠른 코딩 전문가");
-    insertAgent.run(randomUUID(), "Nova", "노바", "dev", "junior", "copilot", "🌟", "창의적인 주니어");
+    insertAgent.run(randomUUID(), "Bolt", "볼트", "dev", "senior", "claude", "⚡", "빠른 코딩 전문가");
+    insertAgent.run(randomUUID(), "Nova", "노바", "dev", "junior", "claude", "🌟", "창의적인 주니어");
     // Design (2)
     insertAgent.run(randomUUID(), "Pixel", "픽셀", "design", "team_leader", "claude", "🎨", "디자인 리더");
-    insertAgent.run(randomUUID(), "Luna", "루나", "design", "junior", "gemini", "🌙", "감성적인 UI 디자이너");
+    insertAgent.run(randomUUID(), "Luna", "루나", "design", "junior", "claude", "🌙", "감성적인 UI 디자이너");
     // Planning (2)
-    insertAgent.run(randomUUID(), "Sage", "세이지", "planning", "team_leader", "codex", "🧠", "전략 분석가");
+    insertAgent.run(randomUUID(), "Sage", "세이지", "planning", "team_leader", "claude", "🧠", "전략 분석가");
     insertAgent.run(randomUUID(), "Clio", "클리오", "planning", "senior", "claude", "📝", "데이터 기반 기획자");
     // Operations (2)
     insertAgent.run(randomUUID(), "Atlas", "아틀라스", "operations", "team_leader", "claude", "🗺️", "운영의 달인");
-    insertAgent.run(randomUUID(), "Turbo", "터보", "operations", "senior", "codex", "🚀", "자동화 전문가");
+    insertAgent.run(randomUUID(), "Turbo", "터보", "operations", "senior", "claude", "🚀", "자동화 전문가");
     // QA/QC (2)
     insertAgent.run(randomUUID(), "Hawk", "호크", "qa", "team_leader", "claude", "🦅", "날카로운 품질 감시자");
-    insertAgent.run(randomUUID(), "Lint", "린트", "qa", "senior", "codex", "🔬", "꼼꼼한 테스트 전문가");
+    insertAgent.run(randomUUID(), "Lint", "린트", "qa", "senior", "claude", "🔬", "꼼꼼한 테스트 전문가");
     // DevSecOps (2)
     insertAgent.run(randomUUID(), "Vault", "볼트S", "devsecops", "team_leader", "claude", "🛡️", "보안 아키텍트");
-    insertAgent.run(randomUUID(), "Pipe", "파이프", "devsecops", "senior", "codex", "🔧", "CI/CD 파이프라인 전문가");
+    insertAgent.run(randomUUID(), "Pipe", "파이프", "devsecops", "senior", "claude", "🔧", "CI/CD 파이프라인 전문가");
     // QA Junior (1)
-    insertAgent.run(randomUUID(), "DORO", "도로롱", "qa", "junior", "gemini", "🩷", "꼼꼼한 품질관리 주니어");
+    insertAgent.run(randomUUID(), "DORO", "도로롱", "qa", "junior", "claude", "🩷", "꼼꼼한 품질관리 주니어");
     console.log("[Claw-Empire] Seeded default agents");
   }
 
@@ -239,13 +239,13 @@ export function applyDefaultSeeds(db: DbLike): void {
 
     const newAgents: [string, string, string, string, string, string, string][] = [
       // [name, name_ko, dept, role, provider, emoji, personality]
-      ["Luna", "루나", "design", "junior", "gemini", "🌙", "감성적인 UI 디자이너"],
+      ["Luna", "루나", "design", "junior", "claude", "🌙", "감성적인 UI 디자이너"],
       ["Clio", "클리오", "planning", "senior", "claude", "📝", "데이터 기반 기획자"],
-      ["Turbo", "터보", "operations", "senior", "codex", "🚀", "자동화 전문가"],
+      ["Turbo", "터보", "operations", "senior", "claude", "🚀", "자동화 전문가"],
       ["Hawk", "호크", "qa", "team_leader", "claude", "🦅", "날카로운 품질 감시자"],
       ["Lint", "린트", "qa", "senior", "opencode", "🔬", "꼼꼼한 테스트 전문가"],
       ["Vault", "볼트S", "devsecops", "team_leader", "claude", "🛡️", "보안 아키텍트"],
-      ["Pipe", "파이프", "devsecops", "senior", "codex", "🔧", "CI/CD 파이프라인 전문가"],
+      ["Pipe", "파이프", "devsecops", "senior", "claude", "🔧", "CI/CD 파이프라인 전문가"],
     ];
 
     let added = 0;
