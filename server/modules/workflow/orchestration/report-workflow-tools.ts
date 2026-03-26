@@ -159,6 +159,15 @@ export function createReportWorkflowTools(deps: CreateReportWorkflowToolsDeps) {
     reviewInFlight.delete(task.id);
     endTaskExecutionSession(task.id, "task_done_no_review");
 
+    // Oracle write-back: save learning to ψ/
+    try {
+      const { writeOracleLearning } = require("../core/oracle-writeback.ts");
+      const fullTask = db.prepare("SELECT id, title, description, project_path, department_id, assigned_agent_id FROM tasks WHERE id = ?").get(task.id) as any;
+      const logs = (db.prepare("SELECT message, kind, created_at FROM task_logs WHERE task_id = ? ORDER BY created_at DESC LIMIT 10").all(task.id) as any[]) || [];
+      const agent = task.assigned_agent_id ? (db.prepare("SELECT name FROM agents WHERE id = ?").get(task.assigned_agent_id) as any)?.name : undefined;
+      writeOracleLearning(fullTask || task, logs, agent);
+    } catch { /* Oracle write-back failed silently */ }
+
     const updatedTask = db.prepare("SELECT * FROM tasks WHERE id = ?").get(task.id);
     broadcast("task_update", updatedTask);
     notifyTaskStatus(task.id, task.title, "done", lang);

@@ -611,6 +611,15 @@ export function createReviewFinalizeTools(deps: CreateReviewFinalizeToolsDeps) {
       appendTaskLog(taskId, "system", "Status → done (all leaders approved)");
       endTaskExecutionSession(taskId, "task_done");
 
+      // Oracle write-back: save learning to ψ/
+      try {
+        const { writeOracleLearning } = require("../core/oracle-writeback.ts");
+        const fullTask = db.prepare("SELECT id, title, description, project_path, department_id, assigned_agent_id FROM tasks WHERE id = ?").get(taskId) as any;
+        const logs = (db.prepare("SELECT message, kind, created_at FROM task_logs WHERE task_id = ? ORDER BY created_at DESC LIMIT 10").all(taskId) as any[]) || [];
+        const agentRow = fullTask?.assigned_agent_id ? (db.prepare("SELECT name FROM agents WHERE id = ?").get(fullTask.assigned_agent_id) as any) : undefined;
+        writeOracleLearning(fullTask, logs, agentRow?.name);
+      } catch { /* Oracle write-back failed silently */ }
+
       const updatedTask = db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId);
       broadcast("task_update", updatedTask);
       notifyTaskStatus(taskId, taskTitle, "done", lang);
