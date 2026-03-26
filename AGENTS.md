@@ -86,6 +86,31 @@ These rules are additive and do NOT delete existing orchestration rules below.
 
 ---
 
+## Oracle Memory — ก่อนเริ่มงานทุกครั้ง
+
+**ทุกครั้งที่ได้รับ task ใหม่ ให้อ่านไฟล์เหล่านี้ก่อน:**
+
+1. อ่าน retrospective ล่าสุด:
+   ```bash
+   ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/ -R | tail -5
+   cat ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/$(ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/ | sort | tail -1)/$(ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/$(ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/ | sort | tail -1) | sort | tail -1)/$(ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/$(ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/ | sort | tail -1)/$(ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/$(ls ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives/ | sort | tail -1) | sort | tail -1) | sort | tail -1)
+   ```
+   หรือง่ายกว่า:
+   ```bash
+   find ~/Work/Test/workshop/SenaWang/ψ/memory/retrospectives -name "*.md" | sort | tail -1 | xargs cat | head -40
+   ```
+
+2. อ่าน 3 learnings ล่าสุด:
+   ```bash
+   ls ~/Work/Test/workshop/SenaWang/ψ/memory/learnings/*.md | sort | tail -3 | xargs head -10
+   ```
+
+3. ถ้า project มี CLAUDE.md ให้อ่านด้วย
+
+**ทำไม**: เพื่อให้รู้ว่าเมื่อวานทำอะไร ค้างอะไรอยู่ มี pattern อะไรที่ต้องระวัง
+
+---
+
 ## Oracle Philosophy (5 Principles)
 
 > "The Oracle Keeps the Human Human"
