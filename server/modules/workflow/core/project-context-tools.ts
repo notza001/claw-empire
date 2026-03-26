@@ -105,6 +105,55 @@ export function createProjectContextTools(deps: CreateProjectContextToolsDeps) {
     "Thumbs.db",
   ]);
 
+  /**
+   * Load Oracle Memory (ψ/) — read-only access to learnings and resonance.
+   * Searches for ψ/ symlink in project path, reads recent learnings.
+   * Returns formatted markdown section or null if no ψ/ found.
+   */
+  function loadOracleMemory(projectPath: string): string | null {
+    // Look for ψ/ in project root (symlink or directory)
+    const psiPaths = [
+      path.join(projectPath, "ψ", "memory", "learnings"),
+      path.join(projectPath, "psi", "memory", "learnings"),
+    ];
+
+    for (const learningsDir of psiPaths) {
+      try {
+        if (!fs.existsSync(learningsDir)) continue;
+
+        const files = fs.readdirSync(learningsDir)
+          .filter(f => f.endsWith(".md"))
+          .sort()
+          .slice(-5); // last 5 learnings (most recent)
+
+        if (files.length === 0) continue;
+
+        const sections: string[] = [`## Oracle Memory (recent learnings)\n`];
+
+        for (const file of files) {
+          try {
+            const content = fs.readFileSync(path.join(learningsDir, file), "utf8");
+            // Extract title from first # heading or filename
+            const titleMatch = content.match(/^#\s+(.+)/m);
+            const title = titleMatch ? titleMatch[1] : file.replace(".md", "");
+            // Take first 200 chars of content after title
+            const body = content
+              .split("\n")
+              .filter(l => !l.startsWith("#") && l.trim())
+              .slice(0, 5)
+              .join("\n")
+              .slice(0, 300);
+            sections.push(`### ${title}\n${body}\n`);
+          } catch { /* skip unreadable files */ }
+        }
+
+        if (sections.length > 1) return sections.join("\n");
+      } catch { /* ψ/ not accessible */ }
+    }
+
+    return null;
+  }
+
   function buildFileTree(dir: string, prefix = "", depth = 0, maxDepth = 4): string[] {
     if (depth >= maxDepth) return [`${prefix}...`];
     let entries: fs.Dirent[];
@@ -272,6 +321,12 @@ export function createProjectContextTools(deps: CreateProjectContextToolsDeps) {
           break;
         }
       } catch {}
+    }
+
+    // Oracle Memory — read recent learnings from ψ/ vault (read-only)
+    const oracleMemory = loadOracleMemory(projectPath);
+    if (oracleMemory) {
+      sections.push(oracleMemory);
     }
 
     return sections.join("\n");
